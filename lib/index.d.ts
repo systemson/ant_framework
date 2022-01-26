@@ -1,3 +1,4 @@
+import "reflect-metadata";
 export { App } from "./src/app";
 export { BoostrapInterface } from "./src/bootstrap";
 export { CacheDriverContract, CacheFacade, FilesystemChacheDriver, RedisChacheDriver, RedisConfigContract } from "./src/cache";
