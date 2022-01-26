@@ -1,7 +1,6 @@
 import { getEnv, logCatchedError, now, timestamp, today } from "./helpers";
 import fs from "fs";
 import { EOL } from "os";
-import { getConnection } from "typeorm";
 
 const LOG_COLORS = {
     danger: "\x1b[31m", // red
@@ -82,7 +81,7 @@ export class FileLogger implements LogDriverContract {
         const path = `${this.folder}/${this.fileName}`;
 
         if (fs.existsSync(path)) {
-            fs.truncateSync(path)
+            fs.truncateSync(path);
         }
     }
 }

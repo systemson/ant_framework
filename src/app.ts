@@ -10,7 +10,7 @@ import { BoostrapInterface } from "./bootstrap";
 export class App {
     routes: Map<string, RouteOptions> = new Map();
 
-    public isRunning: boolean = false;
+    public isRunning = false;
 
     constructor(
         protected boostrap: BoostrapInterface,
@@ -268,7 +268,7 @@ export class App {
         return new Promise((resolve) => {
             Logger.info("Gracefully shutting down the application.");
             resolve();
-/*
+            /*
             if (this.isRunning) {
                 QueueEngineFacade.stop().then(resolve);
             } else {
