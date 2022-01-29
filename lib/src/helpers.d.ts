@@ -1,4 +1,5 @@
 import { Moment } from "moment";
+import { Redis, RedisOptions } from "ioredis";
 export declare const NODE_ENV: string;
 export declare function getEnv(key: string, fallback?: string): string;
 export declare function logCatchedException(error?: {
@@ -21,6 +22,8 @@ export declare const DATE_FORMAT: TIME_FORMAT;
 export declare const HOUR_FORMAT: TIME_FORMAT;
 export declare function sleep(ms: number): Promise<void>;
 export declare function dummyCallback(...any: unknown[]): void;
+export declare function redisConfig(): RedisOptions;
+export declare function redisInstance(): Redis;
 import { I18n } from "i18n";
 declare const Lang: I18n;
 export { Lang };

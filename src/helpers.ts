@@ -1,8 +1,9 @@
 import fs from "fs";
-import dotenv from "dotenv";
+import dotenv, { config } from "dotenv";
 import dotenvExpand from "dotenv-expand";
 import { Logger } from "./logger";
 import moment, { Moment } from "moment";
+import IORedis, { Redis, RedisOptions } from "ioredis";
 
 export const NODE_ENV = (<any>process).pkg ? "compiled" : process.env.NODE_ENV?.trim() ?? "development";
 
@@ -53,7 +54,7 @@ export const DATE_FORMAT: TIME_FORMAT = "YYYY-MM-DD";
 export const HOUR_FORMAT: TIME_FORMAT = "HH:mm:ss.SSS";
 
 export function sleep(ms: number): Promise<void> {
-    Logger.debug("Esperando " + ms);
+    Logger.debug("Waiting " + ms);
     return new Promise((resolve) => {
         setTimeout(resolve, ms, [ms]);
     });
@@ -69,6 +70,35 @@ process.on("SIGINT", () => {
     });
 });
 */
+
+export function redisConfig(): RedisOptions  {
+    return {
+        host: getEnv("REDIS_HOST"),
+        port: parseInt(getEnv("REDIS_PORT")),
+        password: getEnv("REDIS_PASSWORD"),
+        username: getEnv("REDIS_USERNAME"),
+        enableReadyCheck: false,
+        maxRetriesPerRequest: null,
+        stringNumbers: true,
+    };
+}
+
+export function redisInstance(): Redis {
+    const config = redisConfig();
+    const redis = new IORedis(config);
+
+    redis.on("error", (error) => {
+        Logger.error(Lang.__("Could not connect to redis server on [{{host}}:{{port}}].", {
+            host: config.host || 'localhost',
+            port: config.port?.toString() || '6379',
+        }));
+
+        logCatchedException(error);
+    });
+
+    return redis;
+}
+
 
 /**
  * require I18n with capital I as constructor

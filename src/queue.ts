@@ -1,5 +1,5 @@
 import { Job, JobsOptions, Queue, QueueOptions, QueueScheduler, QueueSchedulerOptions, RepeatOptions, WorkerOptions  } from "bullmq";
-import { dummyCallback, getEnv, Lang, logCatchedError, logCatchedException, sleep } from "./helpers";
+import { dummyCallback, getEnv, Lang, logCatchedError, logCatchedException, redisConfig, redisInstance, sleep } from "./helpers";
 import IORedis, { Redis } from "ioredis";
 import { Logger } from "./logger";
 import { snakeCase } from "typeorm/util/StringUtils";
@@ -90,34 +90,9 @@ export abstract class BaseWorker implements WorkerContract {
 
     protected getConnection(): Redis {
         if (typeof this.connection === "undefined") {
-
-            const config = {
-                port: parseInt(getEnv("REDIS_PORT", "6379")),
-                host: getEnv("REDIS_HOST", "localhost"),
-                password: getEnv("REDIS_PASSWORD"),
-
-            };
-            const redis = new IORedis(
-                config.port,
-                config.host,
-                {
-                    password: config.password,
-                    maxRetriesPerRequest: null,
-                    enableReadyCheck: false
-                }
-            );
-
-            this.connection = redis;
-
-            this.connection.on("error", (error) => {
-                Logger.error(Lang.__("Could not connect to redis server on [{{host}}:{{port}}].", {
-                    host: config.host,
-                    port: config.port.toString(),
-                }));
-
-                logCatchedException(error);
-            });
+            this.connection = redisInstance();
         }
+
         return this.connection;
     }
 
@@ -268,29 +243,8 @@ export class QueueEngineFacade {
     }
 
     private static fallbackQueueOptions(): QueueOptions {
-        const config = {
-            port: parseInt(getEnv("REDIS_PORT", "6379")),
-            host: getEnv("REDIS_HOST", "localhost"),
-            password: getEnv("REDIS_PASSWORD"),
-        };
-
-        const redis = new IORedis(config.port, config.host, {
-            password: config.password,
-            enableReadyCheck: false,
-            maxRetriesPerRequest: null,
-        });
-
-        redis.on("error", (error) => {
-            Logger.error(Lang.__("Could not connect to redis server on [{{host}}:{{port}}].", {
-                host: config.host,
-                port: config.port.toString(),
-            }));
-
-            logCatchedException(error);
-        });
-
         return {
-            connection: redis,
+            connection: redisInstance(),
             prefix: snakeCase(getEnv("APP_QUEUE_GROUP", "ant")),
         };
     }
