@@ -1,5 +1,5 @@
 import fs from "fs";
-import dotenv, { config } from "dotenv";
+import dotenv from "dotenv";
 import dotenvExpand from "dotenv-expand";
 import { Logger } from "./logger";
 import moment, { Moment } from "moment";
