@@ -5,10 +5,37 @@ import { Logger } from "./logger";
 import moment, { Moment } from "moment";
 import IORedis, { Redis, RedisOptions } from "ioredis";
 
-export const NODE_ENV = (<any>process).pkg ? "production" : process.env.NODE_ENV?.trim() ?? "development";
+/**
+ * require I18n with capital I as constructor
+ */
+ import { I18n } from "i18n";
+ import path from "path";
+ 
+ /**
+  * create a new instance
+  */
+ const Lang = new I18n();
+ 
+ if (!fs.existsSync("assets")){
+     fs.mkdirSync("assets", { recursive: true });
+ }
+ 
+ Lang.configure({
+     locales:  getEnv("APP_LOCALEs", "en,es").split(","),
+     defaultLocale: getEnv("APP_DEFAULT_LOCALE", "en"),
+     directory: path.join(process.cwd(), "assets", "lang"),
+     autoReload: true,
+     syncFiles: true,
+ });
+ 
+export { Lang };
+
+export const NODE_ENV = (<any>process).pkg ? "compiled" : process.env.NODE_ENV?.trim() ?? "development";
 
 if (!fs.existsSync(`.env.${NODE_ENV}`) && !fs.existsSync(".env")) {
-    throw new Error(`No environment variables file [.env or .env.${NODE_ENV}] found.`);
+    Logger.warn(Lang.__(`No environment variables file [.env or .env.{{env}}] found.`, {
+        env: NODE_ENV
+    }));
 }
 if (NODE_ENV && fs.existsSync(`.env.${NODE_ENV}`)) {
     dotenvExpand(dotenv.config({ path:  `.env.${NODE_ENV}`}));
@@ -98,29 +125,3 @@ export function redisInstance(): Redis {
 
     return redis;
 }
-
-
-/**
- * require I18n with capital I as constructor
- */
-import { I18n } from "i18n";
-import path from "path";
-
-/**
- * create a new instance
- */
-const Lang = new I18n();
-
-if (!fs.existsSync("assets")){
-    fs.mkdirSync("assets", { recursive: true });
-}
-
-Lang.configure({
-    locales:  getEnv("APP_LOCALEs", "en,es").split(","),
-    defaultLocale: getEnv("APP_DEFAULT_LOCALE", "en"),
-    directory: path.join(process.cwd(), "assets", "lang"),
-    autoReload: true,
-    syncFiles: true,
-});
-
-export { Lang };

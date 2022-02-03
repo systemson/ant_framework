@@ -217,8 +217,12 @@ export class App {
     public boot(): Promise<void> {
         return new Promise((resolve, rejects) => {
             Logger.info(Lang.__("Starting [{{name}}] application.", { name: getEnv("APP_NAME") }));
-
-            Logger.audit(Lang.__("Node enviroment [{{env}}].", { env:  NODE_ENV }));
+            
+            Logger.debug(Lang.__(`Node {{version}}-{{platform}}`, {
+                version: process.version,
+                platform: process.platform
+            }));
+            Logger.debug(Lang.__("Node enviroment [{{env}}].", { env:  NODE_ENV }));
 
             try {
                 this.bootProviders().then(async () => {

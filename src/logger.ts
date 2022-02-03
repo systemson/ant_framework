@@ -3,12 +3,14 @@ import fs from "fs";
 import { EOL } from "os";
 
 const LOG_COLORS = {
-    danger: "\x1b[31m", // red
-    success: "\x1b[32m", // green
-    warning: "\x1b[33m", // yellow
-    primary: "\x1b[34m", // blue
-    info: "\x1b[36m", // cyan
-    secondary: "\x1b[37m",
+    danger: "\u001b[31m",
+    success: "\u001b[32m",
+    warning: "\u001b[33m",
+    primary: "\u001b[34m",
+    info: "\u001b[36m",
+    secondary: "\u001b[30;1m",
+    light: "\u001b[37m",
+    dark: "\u001b[30m"
 };
 
 type LOG_LEVEL_NAME = "fatal" | "error" | "warn" | "info" | "debug" | "trace" | "audit";
@@ -26,12 +28,12 @@ export interface LogDriverContract {
 
 export class ConsoleLogger implements LogDriverContract {
     protected LOG_COLORS = {
-        fatal: LOG_COLORS.danger,
+        fatal: "\u001b[7m"+LOG_COLORS.danger,
         error: LOG_COLORS.danger,
         warn: LOG_COLORS.warning,
         info: LOG_COLORS.success,
         debug: LOG_COLORS.info,
-        trace: LOG_COLORS.warning,
+        trace: LOG_COLORS.light,
         audit: LOG_COLORS.secondary,
     }
 
