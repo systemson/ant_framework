@@ -5,7 +5,7 @@ import { Logger } from "./logger";
 import moment, { Moment } from "moment";
 import IORedis, { Redis, RedisOptions } from "ioredis";
 
-export const NODE_ENV = (<any>process).pkg ? "compiled" : process.env.NODE_ENV?.trim() ?? "development";
+export const NODE_ENV = (<any>process).pkg ? "production" : process.env.NODE_ENV?.trim() ?? "development";
 
 if (!fs.existsSync(`.env.${NODE_ENV}`) && !fs.existsSync(".env")) {
     throw new Error(`No environment variables file [.env or .env.${NODE_ENV}] found.`);
