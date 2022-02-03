@@ -218,6 +218,8 @@ export class App {
         return new Promise((resolve, rejects) => {
             Logger.info(Lang.__("Starting [{{name}}] application.", { name: getEnv("APP_NAME") }));
 
+            Logger.audit(Lang.__("Node enviroment [{{env}}].", { env:  NODE_ENV }));
+
             try {
                 this.bootProviders().then(async () => {
 
@@ -247,8 +249,6 @@ export class App {
 
                     Logger.info(Lang.__("[{{name}}] application running.", { name: getEnv("APP_NAME") }));
                     this.isRunning = true;
-
-                    Logger.audit(Lang.__("Node enviroment [{{env}}].", { env:  NODE_ENV }));
 
                     resolve();
                 }).catch(logCatchedException);
