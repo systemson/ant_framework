@@ -2,7 +2,7 @@ import "reflect-metadata";
 export { App } from "./src/app";
 export { BoostrapInterface } from "./src/bootstrap";
 export { CacheDriverContract, CacheFacade, FilesystemChacheDriver, RedisChacheDriver, RedisConfigContract } from "./src/cache";
-export { dateFormated, TIME_FORMAT, DATE_FORMAT, dummyCallback, getEnv, HOUR_FORMAT, Lang, logCatchedError, logCatchedException, NODE_ENV, now, sleep, time, timestamp, TIMESTAMP_FORMAT, today } from "./src/helpers";
+export { dateFormated, TIME_FORMAT, DATE_FORMAT, dummyCallback, getEnv, HOUR_FORMAT, Lang, logCatchedError, logCatchedException, NODE_ENV, now, sleep, time, timestamp, TIMESTAMP_FORMAT, today, isTypescript } from "./src/helpers";
 export { ConsoleLogger, DatabaseLogger, DatabaseLoggerProvider, FileLogger, LogDriverContract, Logger } from "./src/logger";
 export { Model } from "./src/model";
 export { OrmFacade } from "./src/orm_facade";
