@@ -1,6 +1,6 @@
 import { Job, JobsOptions, Queue, QueueOptions, QueueScheduler, QueueSchedulerOptions, RepeatOptions, WorkerOptions  } from "bullmq";
-import { dummyCallback, getEnv, Lang, logCatchedError, logCatchedException, redisConfig, redisInstance, sleep } from "./helpers";
-import IORedis, { Redis } from "ioredis";
+import { dummyCallback, getEnv, Lang, logCatchedError, redisInstance, sleep } from "./helpers";
+import { Redis } from "ioredis";
 import { Logger } from "./logger";
 import { snakeCase } from "typeorm/util/StringUtils";
 

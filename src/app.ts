@@ -6,7 +6,7 @@ import { Response as ExpressResponse, Request as ExpressRequest } from "express"
 import { getEnv, Lang, logCatchedError, logCatchedException, NODE_ENV } from "./helpers";
 import { ServiceProviderContract } from "./service_provider";
 import { BoostrapInterface } from "./bootstrap";
-import os from 'os';
+import os from "os";
 
 export class App {
     routes: Map<string, RouteOptions> = new Map();
@@ -217,18 +217,14 @@ export class App {
      */
     public boot(): Promise<void> {
         return new Promise((resolve, rejects) => {
-            Logger.debug(Lang.__(`Node {{node}}-{{platform}}-{{arch}} [{{env}}]`, {
+            Logger.info(Lang.__("Node {{node}}-{{platform}}-{{arch}} | {{type}} {{release}} [{{env}}]", {
                 node: process.version,
                 platform: os.platform(),
                 arch: os.arch(),
-                env: NODE_ENV
-            }));
-            Logger.debug(Lang.__(`{{type}} {{release}}`, {
                 release: os.release(),
                 type: os.type(),
+                env: NODE_ENV,
             }));
-
-            Logger.debug(Lang.__("Enviroment [{{env}}].", { env:  NODE_ENV }));
 
             Logger.info(Lang.__("Starting [{{name}}] application.", { name: getEnv("APP_NAME") }));
 
