@@ -57,6 +57,9 @@ export function logCatchedError(error?: {name?: string; message?: string; stack?
         Logger.error(JSON.stringify(error, null, 4));
     }
 }
+export function isTypescript(): boolean {
+    return path.extname(__filename)  === ".ts";
+}
 
 export function now(): Moment  {
     return moment();
