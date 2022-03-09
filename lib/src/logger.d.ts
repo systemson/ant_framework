@@ -1,5 +1,5 @@
-declare type LOG_LEVEL_NAME = "fatal" | "error" | "warn" | "info" | "debug" | "trace" | "audit";
-declare type LOG_LEVEL = {
+export declare type LOG_LEVEL_NAME = "fatal" | "error" | "warn" | "info" | "debug" | "trace" | "audit";
+export declare type LOG_LEVEL = {
     name: LOG_LEVEL_NAME;
     number: number;
 };
