@@ -58,7 +58,7 @@ export function logCatchedError(error?: {name?: string; message?: string; stack?
     }
 }
 export function isTypescript(): boolean {
-    return path.extname(require?.main?.filename ?? "")  === ".ts";
+    return path.extname(__filename)  === ".ts";
 }
 
 export function now(): Moment  {

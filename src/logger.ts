@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { getEnv, logCatchedError, now, timestamp, today } from "./helpers";
 import fs from "fs";
 import { EOL } from "os";
@@ -13,9 +14,9 @@ const LOG_COLORS = {
     dark: "\u001b[30m"
 };
 
-type LOG_LEVEL_NAME = "fatal" | "error" | "warn" | "info" | "debug" | "trace" | "audit";
+export type LOG_LEVEL_NAME = "fatal" | "error" | "warn" | "info" | "debug" | "trace" | "audit";
 
-type LOG_LEVEL = {
+export type LOG_LEVEL = {
     name: LOG_LEVEL_NAME;
     number: number;
 };
