@@ -38,7 +38,7 @@ export interface TaskContract {
     handler(now: Date): Promise<void>;
 }
 
-export abstract class Task implements TaskContract {
+export abstract class BaseTask implements TaskContract {
     public cronExpression = "* * * * * *";
     public abstract name: string;
     public id!: number;
@@ -54,7 +54,7 @@ export class SchedulerFacade {
 
     public static tasks: Map<string, ScheduledTask> = new Map();
 
-    public static schedule(scheduler: Task): void {
+    public static schedule(scheduler: TaskContract): void {
         this.tasks.set(
             scheduler.name,
             this.cron.schedule(
