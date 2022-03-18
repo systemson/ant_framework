@@ -7,7 +7,7 @@ export interface BoostrapInterface {
     /**
      * The declared application's service providers.
      */
-    providers: (new() => ServiceProviderContract)[];
+    providers: (new(boostrap: BoostrapInterface) => ServiceProviderContract)[];
 
     /**
      * The declared application's routes. 
