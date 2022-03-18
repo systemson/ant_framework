@@ -190,8 +190,8 @@ export class App {
      *
      */
     protected async bootNext(): Promise<void> {
-        const providerClass = this.boostrap.providers.shift() as new() =>  ServiceProviderContract;
-        const provider = new providerClass();
+        const providerClass = this.boostrap.providers.shift() as new(boostrap: BoostrapInterface) =>  ServiceProviderContract;
+        const provider = new providerClass(this.boostrap);
 
         Logger.audit(Lang.__("Botting service provider [{{name}}].", {
             name: provider.constructor.name,
