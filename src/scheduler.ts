@@ -77,8 +77,18 @@ export class SchedulerFacade {
                                 name: `${scheduler.constructor.name}`,
                                 date: moment().format(TIMESTAMP_FORMAT),
                             }));
-                        }, scheduler.error)
-                            .catch(logCatchedError)
+                        }, (error: Error) => {
+                            scheduler.error(error);
+                            scheduler.isRunning = false;
+                            scheduler.delayedTimes = 0;
+                            scheduler.executedTimes = 0;
+                        })
+                            .catch((error) => {
+                                logCatchedError(error);
+                                scheduler.isRunning = false;
+                                scheduler.delayedTimes = 0;
+                                scheduler.executedTimes = 0;
+                            })
                         ;
                     } else {
                         scheduler.delayedTimes++;
