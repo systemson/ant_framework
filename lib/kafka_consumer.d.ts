@@ -4,16 +4,15 @@ export interface ConsumerContract {
     topic: string;
     base: Consumer;
     handler(payload: EachMessagePayload): Promise<void>;
-    prepareConsumer(): Promise<void>;
+    prepareConsumer(base: Consumer): Promise<void>;
     doHandle(): void;
     error(error: Error): void;
 }
 export declare abstract class BaseConsumer implements ConsumerContract {
-    base: Consumer;
     groupId: string;
     topic: string;
-    constructor(base: Consumer);
-    prepareConsumer(): Promise<void>;
+    base: Consumer;
+    prepareConsumer(base: Consumer): Promise<void>;
     abstract handler(payload: EachMessagePayload): Promise<void>;
     doHandle(): void;
     error(error: Error): void;

@@ -9,18 +9,19 @@ export interface ConsumerContract {
     base: Consumer;
 
     handler(payload: EachMessagePayload): Promise<void>;
-    prepareConsumer(): Promise<void>;
+    prepareConsumer(base: Consumer): Promise<void>;
     doHandle(): void;
     error(error: Error): void;
 }
 
 export abstract class BaseConsumer implements ConsumerContract {
-    groupId = getEnv("KAFKA_CONSUMER_GROUP_ID", "my-group");
-    topic = getEnv("KAFKA_DEFAULT_TOPIC", "my-topic");
+    public groupId = getEnv("KAFKA_CONSUMER_GROUP_ID", "my-group");
+    public topic = getEnv("KAFKA_DEFAULT_TOPIC", "my-topic");
+    public base!: Consumer;
 
-    constructor(public base: Consumer) { }
+    async prepareConsumer(base: Consumer): Promise<void> {
+        this.base = base;
 
-    async prepareConsumer(): Promise<void> {
         await this.base.connect().catch(logCatchedError);
         await this.base.subscribe({
             topic: this.topic,
