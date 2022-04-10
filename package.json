@@ -1,6 +1,6 @@
 {
   "name": "@ant/framework",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "NodeJS + Redis tiny microservices framework",
   "type": "commonjs",
   "repository": {
@@ -32,6 +32,7 @@
     "express": "^4.17.2",
     "i18n": "^0.13.4",
     "ioredis": "^4.28.4",
+    "kafkajs": "^1.16.0",
     "moment": "^2.29.1",
     "node-cron": "^3.0.0",
     "reflect-metadata": "^0.1.13",
