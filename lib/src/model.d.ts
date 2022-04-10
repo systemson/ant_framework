@@ -15,3 +15,4 @@ export declare class Model extends BaseEntity {
     protected static getModifiers(): string[];
 }
 export {};
+//# sourceMappingURL=model.d.ts.map

@@ -14,3 +14,4 @@ export declare class App {
     boot(): Promise<void>;
     shutDown(): Promise<void>;
 }
+//# sourceMappingURL=app.d.ts.map

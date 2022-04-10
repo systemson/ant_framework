@@ -8,3 +8,4 @@ export declare abstract class ServiceProvider implements ServiceProviderContract
     constructor(boostrap: BoostrapInterface);
     abstract boot(): Promise<void>;
 }
+//# sourceMappingURL=service_provider.d.ts.map

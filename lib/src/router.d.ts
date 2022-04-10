@@ -99,3 +99,4 @@ export declare class RouterFacade {
     static setInstance(router: Express): RouterFacade;
     static getInstance(): Express;
 }
+//# sourceMappingURL=router.d.ts.map

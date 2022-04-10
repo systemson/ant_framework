@@ -43,3 +43,4 @@ export declare class CacheFacade {
     static unset(key: string): Promise<void>;
     static call(key: string, callback: Promise<any>, ttl?: number): Promise<any>;
 }
+//# sourceMappingURL=cache.d.ts.map

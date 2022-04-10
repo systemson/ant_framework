@@ -28,3 +28,4 @@ export declare function sleep(ms: number): Promise<void>;
 export declare function dummyCallback(...any: unknown[]): void;
 export declare function redisConfig(): RedisOptions;
 export declare function redisInstance(): Redis;
+//# sourceMappingURL=helpers.d.ts.map

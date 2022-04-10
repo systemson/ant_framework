@@ -62,3 +62,4 @@ export declare class QueueEngineFacade {
     private static fallbackQueueOptions;
     static stop(): Promise<void>;
 }
+//# sourceMappingURL=queue.d.ts.map

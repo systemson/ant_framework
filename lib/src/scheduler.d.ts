@@ -24,3 +24,4 @@ export declare class SchedulerFacade {
     static stop(name: string): void;
     static start(name: string): void;
 }
+//# sourceMappingURL=scheduler.d.ts.map

@@ -18,3 +18,4 @@ export declare abstract class BaseConsumer {
     doHandle(): void;
     error(error: Error): void;
 }
+//# sourceMappingURL=kafka_consumer.d.ts.map

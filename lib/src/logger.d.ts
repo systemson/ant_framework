@@ -81,3 +81,4 @@ export declare class Logger {
     static clear(): void;
 }
 export {};
+//# sourceMappingURL=logger.d.ts.map

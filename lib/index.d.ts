@@ -10,3 +10,4 @@ export * from "./src/queue";
 export * from "./src/router";
 export * from "./src/service_provider";
 export * from "./src/kafka_consumer";
+//# sourceMappingURL=index.d.ts.map

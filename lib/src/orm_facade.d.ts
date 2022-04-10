@@ -5,3 +5,4 @@ export declare class OrmFacade {
     static get orm(): Connection;
     static get em(): any;
 }
+//# sourceMappingURL=orm_facade.d.ts.map
