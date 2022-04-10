@@ -14,7 +14,7 @@ export interface ConsumerContract {
     error(error: Error): void;
 }
 
-export abstract class BaseConsumer {
+export abstract class BaseConsumer implements ConsumerContract {
     groupId = getEnv("KAFKA_CONSUMER_GROUP_ID", "my-group");
     topic = getEnv("KAFKA_DEFAULT_TOPIC", "my-topic");
 
