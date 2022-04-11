@@ -9,7 +9,7 @@ export interface ConsumerContract {
     base: Consumer;
 
     handler(payload: EachMessagePayload): Promise<void>;
-    prepareConsumer(base: Consumer): Promise<void>;
+    boot(base: Consumer): Promise<void>;
     doHandle(): void;
     error(error: Error): void;
 }
@@ -19,7 +19,7 @@ export abstract class BaseConsumer implements ConsumerContract {
     public topic = getEnv("KAFKA_DEFAULT_TOPIC", "my-topic");
     public base!: Consumer;
 
-    async prepareConsumer(base: Consumer): Promise<void> {
+    async boot(base: Consumer): Promise<void> {
         this.base = base;
 
         await this.base.connect().catch(logCatchedError);
