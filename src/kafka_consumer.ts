@@ -1,6 +1,7 @@
 import { Consumer, EachMessagePayload } from "kafkajs";
 import moment from "moment";
-import { getEnv, logCatchedError, TIMESTAMP_FORMAT } from "./helpers";
+import { snakeCase } from "typeorm/util/StringUtils";
+import { dummyCallback, getEnv, logCatchedError, TIMESTAMP_FORMAT } from "./helpers";
 import { Logger } from "./logger";
 
 export interface ConsumerContract {
@@ -10,13 +11,15 @@ export interface ConsumerContract {
 
     handler(payload: EachMessagePayload): Promise<void>;
     boot(base: Consumer): Promise<void>;
-    doHandle(): void;
-    error(error: Error): void;
+    prepare(): void;
+
+    onCompleted(): void;
+    onFailed(error?: unknown): void;
 }
 
 export abstract class BaseConsumer implements ConsumerContract {
-    public groupId = getEnv("KAFKA_CONSUMER_GROUP_ID", "my-group");
-    public topic = getEnv("KAFKA_DEFAULT_TOPIC", "my-topic");
+    public groupId = snakeCase(getEnv("KAFKA_CONSUMER_GROUP_ID", "my-group"));
+    public topic = snakeCase(getEnv("KAFKA_DEFAULT_TOPIC", "my-topic"));
     public base!: Consumer;
 
     async boot(base: Consumer): Promise<void> {
@@ -27,11 +30,13 @@ export abstract class BaseConsumer implements ConsumerContract {
             topic: this.topic,
             fromBeginning: true,
         });
+
+        this.prepare();
     }
 
     abstract handler(payload: EachMessagePayload): Promise<void>;
 
-    public doHandle(): void {
+    public prepare(): void {
         this.base.run({
             eachMessage:async (payload) => {
                 const message = payload.message;
@@ -48,8 +53,11 @@ export abstract class BaseConsumer implements ConsumerContract {
                             headers: message.headers,
                             timestamp: moment(message.timestamp, "x").format(TIMESTAMP_FORMAT),
                         }, null, 4));
+
+                        this.onCompleted();
                     }, error => {
-                        this.error(error);
+                        logCatchedError(error);
+                        this.onFailed(error);
                     })
                     .catch(logCatchedError)
                 ;
@@ -57,7 +65,11 @@ export abstract class BaseConsumer implements ConsumerContract {
         });
     }
 
-    public error(error: Error): void {
-        logCatchedError(error);
+    onCompleted(): void {
+        //
+    }
+
+    onFailed(error?: unknown): void {
+        dummyCallback(error);
     }
 }

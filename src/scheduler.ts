@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { Lang, logCatchedError, TIMESTAMP_FORMAT } from "./helpers";
+import { dummyCallback, Lang, logCatchedError, TIMESTAMP_FORMAT } from "./helpers";
 import moment from "moment";
 import cron, { ScheduledTask } from "node-cron";
 import { Logger } from "./logger";
@@ -32,7 +32,9 @@ export interface TaskContract {
 
     handler(now: Date): Promise<void>;
 
-    error(error: Error): void;
+    onCompleted(): void;
+
+    onFailed(error?: unknown): void;
 }
 
 export abstract class BaseTask implements TaskContract {
@@ -44,8 +46,12 @@ export abstract class BaseTask implements TaskContract {
 
     abstract handler(now: Date): Promise<void>;
 
-    public error(error: Error): void {
-        logCatchedError(error);
+    public onCompleted(): void {
+        //
+    }
+
+    public onFailed(error: Error): void {
+        dummyCallback(error);
     }
 }
 
@@ -77,11 +83,15 @@ export class SchedulerFacade {
                                 name: `${scheduler.constructor.name}`,
                                 date: moment().format(TIMESTAMP_FORMAT),
                             }));
+
+                            scheduler.onCompleted();
                         }, (error: Error) => {
-                            scheduler.error(error);
+                            logCatchedError(error);
                             scheduler.isRunning = false;
                             scheduler.delayedTimes = 0;
                             scheduler.executedTimes = 0;
+
+                            scheduler.onFailed(error);
                         })
                             .catch((error) => {
                                 logCatchedError(error);

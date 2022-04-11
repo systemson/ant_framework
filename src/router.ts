@@ -138,7 +138,7 @@ export class ResponseContainer implements Response {
         ;
     }
 
-    xml(data?: unknown, status = 200, headers: {[key: string]: string;} = {}): Response {
+    xml(data?: string, status = 200, headers: {[key: string]: string;} = {}): Response {
         headers["Content-Type"] = "application/xml";
 
         return this
