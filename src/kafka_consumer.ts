@@ -1,4 +1,4 @@
-import { Consumer, EachMessagePayload } from "kafkajs";
+import { Consumer, EachMessagePayload, KafkaMessage } from "kafkajs";
 import moment from "moment";
 import { snakeCase } from "typeorm/util/StringUtils";
 import { dummyCallback, getEnv, logCatchedError, TIMESTAMP_FORMAT } from "./helpers";
@@ -13,13 +13,13 @@ export interface ConsumerContract {
     boot(base: Consumer): Promise<void>;
     prepare(): void;
 
-    onCompleted(): void;
+    onCompleted(message: KafkaMessage): void;
     onFailed(error?: unknown): void;
 }
 
 export abstract class BaseConsumer implements ConsumerContract {
-    public groupId = snakeCase(getEnv("KAFKA_CONSUMER_GROUP_ID", "my-group"));
     public topic = snakeCase(getEnv("KAFKA_DEFAULT_TOPIC", "my-topic"));
+
     public base!: Consumer;
 
     async boot(base: Consumer): Promise<void> {
@@ -40,11 +40,11 @@ export abstract class BaseConsumer implements ConsumerContract {
         this.base.run({
             eachMessage:async (payload) => {
                 const message = payload.message;
-                Logger.info(`Consuming message on [${this.constructor.name}] from topic [${payload.topic}(#${payload.partition})]`);
+                Logger.debug(`Consuming message on [${this.constructor.name}] from topic [${payload.topic}(#${payload.partition})]`);
 
                 return this.handler(payload)
                     .then(() => {
-                        Logger.info(`Message successfully consumed on [${this.constructor.name}] from topic [${payload.topic}(#${payload.partition})]`);
+                        Logger.debug(`Message successfully consumed on [${this.constructor.name}] from topic [${payload.topic}(#${payload.partition})]`);
 
                         Logger.trace("Message consumed: " + JSON.stringify({
                             key: message.key?.toString(),
@@ -54,7 +54,7 @@ export abstract class BaseConsumer implements ConsumerContract {
                             timestamp: moment(message.timestamp, "x").format(TIMESTAMP_FORMAT),
                         }, null, 4));
 
-                        this.onCompleted();
+                        this.onCompleted(message);
                     }, error => {
                         logCatchedError(error);
                         this.onFailed(error);
@@ -65,8 +65,12 @@ export abstract class BaseConsumer implements ConsumerContract {
         });
     }
 
-    onCompleted(): void {
-        //
+    public get groupId(): string {
+        return `${snakeCase(this.constructor.name)}_group`;
+    }
+
+    onCompleted(message: KafkaMessage): void {
+        dummyCallback(message);
     }
 
     onFailed(error?: unknown): void {

@@ -69,7 +69,7 @@ export declare class ResponseContainer implements Response {
     json(data?: unknown, status?: number, headers?: {
         [key: string]: string;
     }): Response;
-    xml(data?: unknown, status?: number, headers?: {
+    xml(data?: string, status?: number, headers?: {
         [key: string]: string;
     }): Response;
     accepted(data?: unknown, headers?: {

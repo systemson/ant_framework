@@ -6,7 +6,8 @@ export interface TaskContract {
     delayedTimes: number;
     executedTimes: number;
     handler(now: Date): Promise<void>;
-    error(error: Error): void;
+    onCompleted(): void;
+    onFailed(error?: unknown): void;
 }
 export declare abstract class BaseTask implements TaskContract {
     cronExpression: string;
@@ -15,7 +16,8 @@ export declare abstract class BaseTask implements TaskContract {
     delayedTimes: number;
     executedTimes: number;
     abstract handler(now: Date): Promise<void>;
-    error(error: Error): void;
+    onCompleted(): void;
+    onFailed(error: Error): void;
 }
 export declare class SchedulerFacade {
     static cron: typeof cron;
