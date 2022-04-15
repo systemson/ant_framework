@@ -9,16 +9,16 @@ export interface ConsumerContract {
     topic: string;
     base: Consumer;
 
-    handler(payload: EachMessagePayload): Promise<void>;
+    handler(value: unknown, payload: EachMessagePayload): Promise<void>;
     boot(base: Consumer): Promise<void>;
     prepare(): void;
 
     onCompleted(message: KafkaMessage): void;
-    onFailed(error?: unknown): void;
+    onFailed(message: KafkaMessage, error?: unknown): void;
 }
 
 export abstract class BaseConsumer implements ConsumerContract {
-    public topic = snakeCase(getEnv("KAFKA_DEFAULT_TOPIC", "my-topic"));
+    public topic = snakeCase(getEnv("KAFKA_DEFAULT_TOPIC", "ant-topic"));
 
     public base!: Consumer;
 
@@ -34,15 +34,16 @@ export abstract class BaseConsumer implements ConsumerContract {
         this.prepare();
     }
 
-    abstract handler(payload: EachMessagePayload): Promise<void>;
+    abstract handler(value: unknown, payload: EachMessagePayload): Promise<void>;
 
     public prepare(): void {
         this.base.run({
             eachMessage:async (payload) => {
                 const message = payload.message;
+                const value = JSON.parse(payload.message.value?.toString() as string);
                 Logger.debug(`Consuming message on [${this.constructor.name}] from topic [${payload.topic}(#${payload.partition})]`);
 
-                return this.handler(payload)
+                return this.handler(value, payload)
                     .then(() => {
                         Logger.debug(`Message successfully consumed on [${this.constructor.name}] from topic [${payload.topic}(#${payload.partition})]`);
 
@@ -57,7 +58,7 @@ export abstract class BaseConsumer implements ConsumerContract {
                         this.onCompleted(message);
                     }, error => {
                         logCatchedError(error);
-                        this.onFailed(error);
+                        this.onFailed(error, message);
                     })
                     .catch(logCatchedError)
                 ;
@@ -73,7 +74,7 @@ export abstract class BaseConsumer implements ConsumerContract {
         dummyCallback(message);
     }
 
-    onFailed(error?: unknown): void {
-        dummyCallback(error);
+    onFailed(message: KafkaMessage, error?: unknown): void {
+        dummyCallback(error, message);
     }
 }
