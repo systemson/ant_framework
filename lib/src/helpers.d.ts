@@ -14,6 +14,7 @@ export declare function logCatchedError(error?: {
     message?: string;
     stack?: string;
 }): void;
+export declare function logTypeORMCatchedError(error?: any): void;
 export declare function isTypescript(): boolean;
 export declare function now(): Moment;
 export declare function dateFormated(format: TIME_FORMAT): string;

@@ -10,7 +10,7 @@ export interface ConsumerContract {
     onFailed(message: KafkaMessage, error?: unknown): void;
 }
 export declare abstract class BaseConsumer implements ConsumerContract {
-    topic: string;
+    abstract topic: string;
     base: Consumer;
     boot(base: Consumer): Promise<void>;
     abstract handler(value: unknown, payload: EachMessagePayload): Promise<void>;

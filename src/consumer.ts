@@ -18,7 +18,7 @@ export interface ConsumerContract {
 }
 
 export abstract class BaseConsumer implements ConsumerContract {
-    public topic = snakeCase(getEnv("KAFKA_DEFAULT_TOPIC", "ant-topic"));
+    public abstract topic: string;
 
     public base!: Consumer;
 

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import fs from "fs";
 import dotenv from "dotenv";
 import dotenvExpand from "dotenv-expand";
@@ -53,9 +54,25 @@ export function logCatchedException(error?: {message?: string; stack?: string;})
 export function logCatchedError(error?: {name?: string; message?: string; stack?: string;}): void {
     Logger.error(error?.message || Lang.__("No message provided for this error."));
     Logger.error(error?.stack || Lang.__("No trace stack provided for this error."));
-    if (NODE_ENV?.trim() === "develop") {
+    if (NODE_ENV?.trim() === "development") {
         Logger.error(JSON.stringify(error, null, 4));
     }
+}
+export function logTypeORMCatchedError(error?: any): void {
+    logCatchedError(error);
+    Logger.error(Lang.__(error.detail));
+    Logger.error(error.query);
+    Logger.trace(JSON.stringify({
+        schema: error.schema,
+        table: error.table,
+        column: error.column,
+        severity: error.severity,
+        code: error.code,
+        hint: error.hint,
+        internalQuery: error.internalQuery,
+        dataType: error.dataType,
+        constraint: error.constraint
+    }, null, 4));
 }
 export function isTypescript(): boolean {
     return path.extname(require?.main?.filename ?? "")  === ".ts";
