@@ -28,7 +28,7 @@ export abstract class BaseConsumer implements ConsumerContract {
         await this.base.connect().catch(logCatchedError);
         await this.base.subscribe({
             topic: this.topic,
-            fromBeginning: true,
+            fromBeginning: false,
         });
 
         this.prepare();
