@@ -121,14 +121,16 @@ export class App {
                         const concrete = new Worker(
                             queueName,
                             (job: Job) => {
-                                Logger.debug(Lang.__(
-                                    "Handling job [{{jobName}}#{{jobId}}] on [{{name}}:{{queue}}].",
-                                    instance.getWorkerData(job)
-                                ));
-
-                                Logger.trace(JSON.stringify(job, null, 4));
-
-                                return instance.handler(job);
+                                if (job.name) {
+                                    Logger.debug(Lang.__(
+                                        "Handling job [{{jobName}}(#{{jobId}})] on [{{name}}(#{{id}}):{{queue}}].",
+                                        instance.getWorkerData(job)
+                                    ));
+    
+                                    Logger.trace(JSON.stringify(job, null, 4));
+    
+                                    return instance.handler(job);
+                                }
                             },
                             instance.getOptions()
                         );
@@ -147,7 +149,11 @@ export class App {
 
                         concrete.on("drained", () => instance.onDrained());
 
-                        concrete.on("error", logCatchedError);
+                        concrete.on("error", error => {
+                            if (error) {
+                                logCatchedError(error);
+                            }
+                        });
 
                         Logger.audit(Lang.__("Worker [{{name}}(#{{id}}):{{queue}}] is ready.", {
                             name: instance.constructor.name,
@@ -210,7 +216,6 @@ export class App {
     public init(): void {
         //
     }
-    
 
     /**
      * Sets ready the application's components.

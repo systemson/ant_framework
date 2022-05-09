@@ -114,14 +114,11 @@ export abstract class BaseWorker implements WorkerContract {
         dummyCallback(job, failedReason);
     }
 
-    public onCompleted(job: Job, returnValue: unknown): void {
-        Logger.debug(Lang.__("Job [{{job}}#{{id}}] successfully completed on [{{name}}(#{{id}}):{{queue}}]. Returning: {{{data}}}.",
-            this.getWorkerData(
-                job,
-                returnValue
-            )
+    public onCompleted(job: Job): void {
+        Logger.debug(Lang.__("Job [{{jobName}}(#{{jobId}})] successfully completed on [{{name}}(#{{id}}):{{queue}}].",
+            this.getWorkerData(job)
         ));
-        Logger.trace(JSON.stringify(job, null, 4));
+        Logger.trace("Worker return: " + JSON.stringify(job.data, null, 4));
     }
 
     public onProgress(job: Job<any, any, string>, progress: unknown): void {
@@ -130,10 +127,8 @@ export abstract class BaseWorker implements WorkerContract {
     }
 
     public onFailed(job: Job, failedReason: Error): void {
-        Logger.error(Lang.__("Job [{{job}}#{{id}}] failed on [{{name}}(#{{id}}):{{queue}}].",
-            this.getWorkerData(
-                job
-            )
+        Logger.error(Lang.__("Job [{{jobName}}(#{{jobId}})] failed on [{{name}}(#{{id}}):{{queue}}].",
+            this.getWorkerData(job)
         ));
 
         logCatchedError(failedReason);
@@ -144,17 +139,16 @@ export abstract class BaseWorker implements WorkerContract {
     }
 
     public onDrained(): void {
-        Logger.audit(Lang.__("Queue [{{name}}(#{{id}}):{{queue}}] is empty.", this.getWorkerData()));
+        Logger.audit(Lang.__("Worker [{{name}}(#{{id}}):{{queue}}] is empty.", this.getWorkerData()));
     }
     
-    public getWorkerData(job?: Job, data?: unknown): {name: string; id: string; queue: string, jobName?: string, jobId?: string; data?: string} {
+    public getWorkerData(job?: Job): {name: string; id: string; queue: string, jobName?: string, jobId?: string;} {
         return {
             name: this.constructor.name,
             id: this.getId().toString(),
             queue: this.getQueueName(),
             jobName: job?.name,
             jobId: job?.id?.toString() as string,
-            data: JSON.stringify(data),
         };
     }
 }
@@ -204,8 +198,8 @@ export class QueueEngineFacade {
     }
 
     public static dispatch(jobName: string, data: unknown, jobOptions?: JobsOptions): Promise<unknown> {
-        Logger.debug(Lang.__("Dispatching Job [{{job}}] to queue [{{queue}}].", {
-            job: jobName,
+        Logger.debug(Lang.__("Dispatching Job [{{jobName}}] to queue [{{queue}}].", {
+            jobName: jobName,
             queue: this.default || snakeCase(getEnv("APP_DEFAULT_QUEUE"))
         }));
         Logger.trace("Job data: " + JSON.stringify(data, null, 4));
@@ -267,4 +261,3 @@ export class QueueEngineFacade {
         });
     }
 }
-

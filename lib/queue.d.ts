@@ -35,17 +35,16 @@ export declare abstract class BaseWorker implements WorkerContract {
     getOptions(): WorkerOptions;
     protected dispatch(queueName: string, queuejob: string, data: unknown): Promise<unknown>;
     handleFailed(job: Job, failedReason: string): void;
-    onCompleted(job: Job, returnValue: unknown): void;
+    onCompleted(job: Job): void;
     onProgress(job: Job<any, any, string>, progress: unknown): void;
     onFailed(job: Job, failedReason: Error): void;
     onDrained(): void;
-    getWorkerData(job?: Job, data?: unknown): {
+    getWorkerData(job?: Job): {
         name: string;
         id: string;
         queue: string;
         jobName?: string;
         jobId?: string;
-        data?: string;
     };
 }
 export declare class QueueEngineFacade {
