@@ -12,7 +12,6 @@ export interface ConsumerContract extends ServiceContract {
 
     handler(value: unknown, payload: EachMessagePayload): Promise<void>;
     boot(base: Consumer): Promise<void>;
-    prepare(): void;
 
     onCompleted(message: KafkaMessage): void;
     onFailed(message: KafkaMessage, error?: unknown): void;
@@ -31,8 +30,6 @@ export abstract class BaseConsumer implements ConsumerContract {
             topic: this.topic,
             fromBeginning: false,
         });
-
-        this.prepare();
     }
 
     public abstract handler(value: unknown, payload: EachMessagePayload): Promise<void>;
@@ -43,36 +40,6 @@ export abstract class BaseConsumer implements ConsumerContract {
 
     public onBooted(): void {
         //
-    }
-
-    public prepare(): void {
-        this.base.run({
-            eachMessage:async (payload) => {
-                const message = payload.message;
-                const value = JSON.parse(payload.message.value?.toString() as string);
-                Logger.debug(`Consuming message on [${this.constructor.name}] from topic [${payload.topic}(#${payload.partition})]`);
-
-                return this.handler(value, payload)
-                    .then(() => {
-                        Logger.debug(`Message successfully consumed on [${this.constructor.name}] from topic [${payload.topic}(#${payload.partition})]`);
-
-                        Logger.trace("Message consumed: " + JSON.stringify({
-                            key: message.key?.toString(),
-                            offset: message.offset,
-                            message: message.value?.toString(),
-                            headers: message.headers,
-                            timestamp: moment(message.timestamp, "x").format(TIMESTAMP_FORMAT),
-                        }, null, 4));
-
-                        this.onCompleted(message);
-                    }, error => {
-                        logCatchedError(error);
-                        this.onFailed(error, message);
-                    })
-                    .catch(logCatchedError)
-                ;
-            }
-        });
     }
 
     public get groupId(): string {
