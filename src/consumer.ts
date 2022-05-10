@@ -11,7 +11,7 @@ export interface ConsumerContract extends ServiceContract {
     base: Consumer;
 
     handler(value: unknown, payload: EachMessagePayload): Promise<void>;
-    boot(base: Consumer): Promise<void>;
+    boot(base: Consumer): Promise<Consumer>;
 
     onCompleted(message: KafkaMessage): void;
     onFailed(message: KafkaMessage, error?: unknown): void;
@@ -22,7 +22,7 @@ export abstract class BaseConsumer implements ConsumerContract {
 
     public base!: Consumer;
 
-    async boot(base: Consumer): Promise<void> {
+    async boot(base: Consumer): Promise<Consumer> {
         this.base = base;
 
         await this.base.connect().catch(logCatchedError);
@@ -30,6 +30,8 @@ export abstract class BaseConsumer implements ConsumerContract {
             topic: this.topic,
             fromBeginning: false,
         });
+
+        return base;
     }
 
     public abstract handler(value: unknown, payload: EachMessagePayload): Promise<void>;
