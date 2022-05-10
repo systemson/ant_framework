@@ -1,5 +1,6 @@
 import { Consumer, EachMessagePayload, KafkaMessage } from "kafkajs";
-export interface ConsumerContract {
+import { ServiceContract } from "./service_provider";
+export interface ConsumerContract extends ServiceContract {
     groupId: string;
     topic: string;
     base: Consumer;
@@ -14,9 +15,13 @@ export declare abstract class BaseConsumer implements ConsumerContract {
     base: Consumer;
     boot(base: Consumer): Promise<void>;
     abstract handler(value: unknown, payload: EachMessagePayload): Promise<void>;
+    onCreated(): void;
+    onBooted(): void;
     prepare(): void;
     get groupId(): string;
     onCompleted(message: KafkaMessage): void;
     onFailed(message: KafkaMessage, error?: unknown): void;
+    onError(error?: unknown): void;
+    onDestroyed(): void;
 }
 //# sourceMappingURL=consumer.d.ts.map

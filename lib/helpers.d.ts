@@ -27,6 +27,7 @@ export declare const DATE_FORMAT: TIME_FORMAT;
 export declare const HOUR_FORMAT: TIME_FORMAT;
 export declare function sleep(ms: number): Promise<void>;
 export declare function dummyCallback(...any: unknown[]): void;
+export declare function dummyPromiseCallback(...any: unknown[]): Promise<any>;
 export declare function redisConfig(): RedisOptions;
 export declare function redisInstance(): Redis;
 //# sourceMappingURL=helpers.d.ts.map

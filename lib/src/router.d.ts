@@ -1,4 +1,5 @@
 import { Express, Request as ExpressRequest, Response as ExpressResponse, RequestHandler } from "express";
+import { ServiceContract } from "./service_provider";
 export declare type RouterConfig = {
     scheme?: string;
     host?: string;
@@ -11,13 +12,14 @@ export declare type RouteOptions = {
     method: Method;
     callback: RequestHandler;
 };
-export interface RouteContract {
+export interface RouteContract extends ServiceContract {
     url: string;
     method: Method;
     handle(req: Request): Promise<Response> | Response;
-    doHandle(req: Request): Promise<Response>;
+    handler(req: Request): Promise<Response>;
     onCompleted(req: Request): void;
     onFailed(req: Request, error?: unknown): void;
+    onError(error?: unknown): void;
 }
 export interface Response {
     setData(data?: unknown): Response;
@@ -90,9 +92,13 @@ export declare abstract class BaseRoute implements RouteContract {
     url: string;
     abstract method: Method;
     abstract handle(req: Request): Promise<Response> | Response;
-    doHandle(req: Request): Promise<Response>;
+    handler(req: Request): Promise<Response>;
+    onCreated(): void;
+    onBooted(): void;
     onCompleted(req: Request): void;
     onFailed(req: Request, error?: unknown): void;
+    onError(error: unknown): void;
+    onDestroyed(): void;
 }
 export declare class RouterFacade {
     protected static instance: Express;

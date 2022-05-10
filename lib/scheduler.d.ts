@@ -1,5 +1,6 @@
 import cron, { ScheduledTask } from "node-cron";
-export interface TaskContract {
+import { ServiceContract } from "./service_provider";
+export interface TaskContract extends ServiceContract {
     cronExpression: string;
     name: string;
     isRunning: boolean;
@@ -16,8 +17,12 @@ export declare abstract class BaseTask implements TaskContract {
     delayedTimes: number;
     executedTimes: number;
     abstract handler(now: Date): Promise<void>;
+    onCreated(): void;
+    onBooted(): void;
     onCompleted(): void;
     onFailed(error: Error): void;
+    onError(error: Error): void;
+    onDestroyed(): void;
 }
 export declare class SchedulerFacade {
     static cron: typeof cron;
