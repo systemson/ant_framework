@@ -3,8 +3,9 @@ import moment from "moment";
 import { snakeCase } from "typeorm/util/StringUtils";
 import { dummyCallback, logCatchedError, TIMESTAMP_FORMAT } from "./helpers";
 import { Logger } from "./logger";
+import { ServiceContract } from "./service_provider";
 
-export interface ConsumerContract {
+export interface ConsumerContract extends ServiceContract {
     groupId: string;
     topic: string;
     base: Consumer;
@@ -34,7 +35,15 @@ export abstract class BaseConsumer implements ConsumerContract {
         this.prepare();
     }
 
-    abstract handler(value: unknown, payload: EachMessagePayload): Promise<void>;
+    public abstract handler(value: unknown, payload: EachMessagePayload): Promise<void>;
+
+    public onCreated(): void {
+        //
+    }
+
+    public onBooted(): void {
+        //
+    }
 
     public prepare(): void {
         this.base.run({
@@ -70,11 +79,19 @@ export abstract class BaseConsumer implements ConsumerContract {
         return `${snakeCase(this.constructor.name)}_group`;
     }
 
-    onCompleted(message: KafkaMessage): void {
+    public onCompleted(message: KafkaMessage): void {
         dummyCallback(message);
     }
 
-    onFailed(message: KafkaMessage, error?: unknown): void {
+    public onFailed(message: KafkaMessage, error?: unknown): void {
         dummyCallback(error, message);
+    }
+
+    public onError(error?: unknown): void {
+        dummyCallback(error);
+    }
+
+    public onDestroyed(): void {
+        //
     }
 }

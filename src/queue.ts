@@ -3,11 +3,12 @@ import { dummyCallback, getEnv, Lang, logCatchedError, redisInstance, sleep } fr
 import { Redis } from "ioredis";
 import { Logger } from "./logger";
 import { snakeCase } from "typeorm/util/StringUtils";
+import { ServiceContract } from "./service_provider";
 
 /**
  * The Worker base interface
  */
-export interface WorkerContract {
+export interface WorkerContract extends ServiceContract {
     /**
      * The worker's concurrency ID.
      */
@@ -49,19 +50,12 @@ export interface WorkerContract {
      */
     handler(job: Job): any;
 
-    /**
-     * Handles the failed job.
-     * 
-     * @param job The job to process
-     * @param failedReason
-     */
-    handleFailed(job: Job, failedReason: string): void
-
     getWorkerData(job?: Job, data?: unknown, id?: number): {name: string; id: string, queue: string, jobName?: string, jobId?: string; data?: string};
 
     onCompleted(job: Job, returnValue: unknown): void;
     onProgress(job: Job, progress: number | unknown): void;
     onFailed(job: Job, failedReason: Error): void;
+    onError(error: Error): void;
     onDrained(): void;
 }
 
@@ -110,8 +104,12 @@ export abstract class BaseWorker implements WorkerContract {
         return QueueEngineFacade.queue(queueName).add(queuejob, data);
     }
 
-    public handleFailed(job: Job, failedReason: string): void {
-        dummyCallback(job, failedReason);
+    public onCreated(): void {
+        //
+    }
+
+    public onBooted(): void {
+        //
     }
 
     public onCompleted(job: Job): void {
@@ -134,12 +132,18 @@ export abstract class BaseWorker implements WorkerContract {
         logCatchedError(failedReason);
         
         Logger.trace(JSON.stringify(job, null, 4));
-        
-        this.handleFailed(job, failedReason.message);
+    }
+
+    public onError(): void {
+        //
     }
 
     public onDrained(): void {
         Logger.audit(Lang.__("Worker [{{name}}(#{{id}}):{{queue}}] is empty.", this.getWorkerData()));
+    }
+
+    public onDestroyed(): void {
+        //
     }
     
     public getWorkerData(job?: Job): {name: string; id: string; queue: string, jobName?: string, jobId?: string;} {

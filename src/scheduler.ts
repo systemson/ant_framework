@@ -3,8 +3,9 @@ import { dummyCallback, Lang, logCatchedError, TIMESTAMP_FORMAT } from "./helper
 import moment from "moment";
 import cron, { ScheduledTask } from "node-cron";
 import { Logger } from "./logger";
+import { ServiceContract } from "./service_provider";
 
-export interface TaskContract {
+export interface TaskContract extends ServiceContract {
     /**
      *
      */
@@ -46,12 +47,28 @@ export abstract class BaseTask implements TaskContract {
 
     abstract handler(now: Date): Promise<void>;
 
+    public onCreated(): void {
+        //
+    }
+
+    public onBooted(): void {
+        //
+    }
+
     public onCompleted(): void {
         //
     }
 
     public onFailed(error: Error): void {
         dummyCallback(error);
+    }
+
+    public onError(error: Error): void {
+        dummyCallback(error);
+    }
+
+    public onDestroyed(): void {
+        //
     }
 }
 

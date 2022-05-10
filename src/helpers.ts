@@ -109,6 +109,9 @@ export function sleep(ms: number): Promise<void> {
 export function dummyCallback(...any: unknown[]): void {
     //
 }
+export function dummyPromiseCallback(...any: unknown[]): Promise<any> {
+    return new Promise(resolve => resolve(any));
+}
 /*
 process.on("SIGINT", () => {
     app.shutDown().then(() => {

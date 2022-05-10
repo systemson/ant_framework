@@ -1,5 +1,6 @@
 import { Express, Request as ExpressRequest, Response as ExpressResponse, RequestHandler } from "express";
-import { dummyCallback, getEnv } from "./helpers";
+import { dummyCallback, dummyPromiseCallback, getEnv } from "./helpers";
+import { ServiceContract } from "./service_provider";
 
 export type RouterConfig = {
     scheme?: string;
@@ -26,16 +27,19 @@ export type RouteOptions = {
     callback: RequestHandler,
 }
 
-export interface RouteContract {
+export interface RouteContract extends ServiceContract {
     url: string;
     method: Method;
 
-    handle(req: Request): Promise<Response> | Response;
+    handle(req: Request):  Promise<Response> | Response;
     
-    doHandle(req: Request): Promise<Response>;
+    handler(req: Request): Promise<Response>;
 
     onCompleted(req: Request): void;
+
     onFailed(req: Request, error?: unknown): void;
+
+    onError(error?: unknown): void;
 }
 
 export interface Response {
@@ -200,7 +204,7 @@ export abstract class BaseRoute implements RouteContract {
 
     abstract handle(req: Request): Promise<Response> | Response;
 
-    doHandle(req: Request): Promise<Response> {
+    handler(req: Request): Promise<Response> {
         const response = this.handle(req);
 
         if (response instanceof Promise) {
@@ -212,12 +216,28 @@ export abstract class BaseRoute implements RouteContract {
         });
     }
 
+    onCreated(): void {
+        //
+    }
+
+    onBooted(): void {
+        //
+    }
+
     onCompleted(req: Request): void {
-        dummyCallback(req);
+        return dummyCallback(req);
     }
 
     onFailed(req: Request, error?: unknown): void {
-        dummyCallback(req, error);
+        return dummyCallback(req, error);
+    }
+
+    onError(error: unknown): void {
+        return dummyCallback(error);
+    }
+
+    onDestroyed(): void {
+        //
     }
 }
 
