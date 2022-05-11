@@ -1,8 +1,6 @@
 import { Consumer, EachMessagePayload, KafkaMessage } from "kafkajs";
-import moment from "moment";
 import { snakeCase } from "typeorm/util/StringUtils";
-import { dummyCallback, logCatchedError, TIMESTAMP_FORMAT } from "./helpers";
-import { Logger } from "./logger";
+import { dummyCallback, logCatchedError } from "./helpers";
 import { ServiceContract } from "./service_provider";
 
 export interface ConsumerContract extends ServiceContract {

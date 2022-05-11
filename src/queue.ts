@@ -116,12 +116,13 @@ export abstract class BaseWorker implements WorkerContract {
         Logger.debug(Lang.__("Job [{{jobName}}(#{{jobId}})] successfully completed on [{{name}}(#{{id}}):{{queue}}].",
             this.getWorkerData(job)
         ));
-        Logger.trace("Worker return: " + JSON.stringify(job.data, null, 4));
+        Logger.trace("Worker return: ");
+        Logger.trace(job.data);
     }
 
     public onProgress(job: Job<any, any, string>, progress: unknown): void {
-        Logger.debug(JSON.stringify(job, null, 4));
-        Logger.trace(JSON.stringify(progress));
+        Logger.debug(job);
+        Logger.trace(progress);
     }
 
     public onFailed(job: Job, failedReason: Error): void {
@@ -131,7 +132,7 @@ export abstract class BaseWorker implements WorkerContract {
 
         logCatchedError(failedReason);
         
-        Logger.trace(JSON.stringify(job, null, 4));
+        Logger.trace(job);
     }
 
     public onError(): void {
@@ -206,7 +207,8 @@ export class QueueEngineFacade {
             jobName: jobName,
             queue: this.default || snakeCase(getEnv("APP_DEFAULT_QUEUE"))
         }));
-        Logger.trace("Job data: " + JSON.stringify(data, null, 4));
+        Logger.trace("Job data: ");
+        Logger.trace(data);
 
         return QueueEngineFacade.getInstance(
             this.default || snakeCase(getEnv("APP_DEFAULT_QUEUE"))
