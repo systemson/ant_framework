@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { getEnv, logCatchedError, now, timestamp, today } from "./helpers";
+import { getEnv, logCatchedError, NODE_ENV, now, timestamp, today } from "./helpers";
 import fs from "fs";
 import { EOL } from "os";
 
@@ -199,7 +199,17 @@ export class Logger {
 
     public static isReady = false;
 
-    public static log(level: LOG_LEVEL, msg: string): Promise<void> {
+    public static log(level: LOG_LEVEL, raw: unknown): Promise<void> {
+        let msg: string;
+
+        if (typeof raw != "string") {
+            if (NODE_ENV == "development") {
+                msg = JSON.stringify(raw, null, 4);
+            } else {
+                msg = JSON.stringify(raw);
+            }
+        }
+
         return new Promise((resolve) => {
             if (parseInt(getEnv("APP_LOG_LEVEL", "3")) >= level.number) {
                 this.messages.push({
@@ -231,31 +241,31 @@ export class Logger {
         });
     }
 
-    static fatal(msg: string): Promise<void>  {
+    static fatal(msg: unknown): Promise<void>  {
         return this.log(this.FATAL, msg);
     }
 
-    static error(msg: string): Promise<void>  {
+    static error(msg: unknown): Promise<void>  {
         return this.log(this.ERROR, msg);
     }
 
-    static warn(msg: string): Promise<void>  {
+    static warn(msg: unknown): Promise<void>  {
         return this.log(this.WARN, msg);
     }
 
-    static info(msg: string): Promise<void>  {
+    static info(msg: unknown): Promise<void>  {
         return this.log(this.INFO, msg);
     }
 
-    static debug(msg: string): Promise<void>  {
+    static debug(msg: unknown): Promise<void>  {
         return this.log(this.DEBUG, msg);
     }
 
-    static trace(msg: string): Promise<void>  {
+    static trace(msg: unknown): Promise<void>  {
         return this.log(this.TRACE, msg);
     }
 
-    static audit(msg: string): Promise<void>  {
+    static audit(msg: unknown): Promise<void>  {
         return this.log(this.AUDIT, msg);
     }
 

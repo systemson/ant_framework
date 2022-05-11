@@ -68,15 +68,15 @@ export declare class Logger {
     static TRACE: LOG_LEVEL;
     static AUDIT: LOG_LEVEL;
     static isReady: boolean;
-    static log(level: LOG_LEVEL, msg: string): Promise<void>;
+    static log(level: LOG_LEVEL, raw: unknown): Promise<void>;
     protected static doLog(): Promise<void>;
-    static fatal(msg: string): Promise<void>;
-    static error(msg: string): Promise<void>;
-    static warn(msg: string): Promise<void>;
-    static info(msg: string): Promise<void>;
-    static debug(msg: string): Promise<void>;
-    static trace(msg: string): Promise<void>;
-    static audit(msg: string): Promise<void>;
+    static fatal(msg: unknown): Promise<void>;
+    static error(msg: unknown): Promise<void>;
+    static warn(msg: unknown): Promise<void>;
+    static info(msg: unknown): Promise<void>;
+    static debug(msg: unknown): Promise<void>;
+    static trace(msg: unknown): Promise<void>;
+    static audit(msg: unknown): Promise<void>;
     static pushDriver(driver: LogDriverContract, can?: boolean): void;
     static clear(): void;
 }
