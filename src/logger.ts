@@ -208,6 +208,8 @@ export class Logger {
             } else {
                 msg = JSON.stringify(raw);
             }
+        } else {
+            msg = raw;
         }
 
         return new Promise((resolve) => {
