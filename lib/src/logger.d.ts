@@ -23,10 +23,9 @@ export declare class ConsoleLogger implements LogDriverContract {
 export declare class FileLogger implements LogDriverContract {
     folder: string;
     name: string;
-    dateFormat: string;
-    protected fileName: string;
-    constructor(folder: string, name: string, dateFormat?: string);
+    constructor(folder: string, name: string);
     log(msg: string, level: LOG_LEVEL_NAME, date: string): Promise<void>;
+    protected get fileName(): string;
     protected init(): void;
     clear(): void;
 }

@@ -54,13 +54,11 @@ export class ConsoleLogger implements LogDriverContract {
 }
 
 export class FileLogger implements LogDriverContract {
-    protected fileName!: string;
     public constructor(
         public folder: string,
         public name: string,
-        public dateFormat: string = "YYYY-MM-DD",
     ) {
-        this.fileName = `${this.name.toLowerCase()}-${today()}.log`;
+        //
     }
 
     public log(msg: string, level: LOG_LEVEL_NAME, date: string): Promise<void> {
@@ -72,6 +70,10 @@ export class FileLogger implements LogDriverContract {
                 `[${date}] | ${level.toUpperCase().padEnd(5, " ")} | ${msg}` + EOL
             ));
         });
+    }
+
+    protected get fileName(): string {
+        return `${this.name.toLowerCase()}-${today()}.log`;
     }
 
     protected init(): void {
