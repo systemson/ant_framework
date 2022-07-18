@@ -33,7 +33,7 @@ export { Lang };
 
 export const NODE_ENV = (<any>process).pkg ? "compiled" : process.env.NODE_ENV?.trim() ?? "development";
 
-if (!fs.existsSync(`.env.${NODE_ENV}`) && !fs.existsSync(".env")) {
+if (NODE_ENV != "production" && !fs.existsSync(`.env.${NODE_ENV}`) && !fs.existsSync(".env")) {
     Logger.warn(Lang.__("No environment variables file [.env or .env.{{env}}] found.", {
         env: NODE_ENV
     }));
