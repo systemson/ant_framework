@@ -48,6 +48,7 @@ export class Model extends BaseEntity  {
             select: (query.select as string)?.split(",") as (keyof T)[],
             where: contidions,
             order: orderBy,
+            relations: (query.with as string)?.split(","),
         };
         
         const data = await (this as any)
@@ -73,7 +74,7 @@ export class Model extends BaseEntity  {
 
     protected static getModifiers(): string[] {
         return [
-            "_Not",
+            "_not",
             "_like",
             "_gte",
             "_lte",

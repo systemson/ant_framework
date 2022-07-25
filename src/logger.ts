@@ -1,7 +1,8 @@
 /* eslint-disable no-console */
-import { getEnv, logCatchedError, NODE_ENV, now, timestamp, today } from "./helpers";
+import { DATE_FORMAT, getEnv, logCatchedError, NODE_ENV, now, timestamp, today } from "./helpers";
 import fs from "fs";
 import { EOL } from "os";
+import moment from "moment";
 
 const LOG_COLORS = {
     danger: "\u001b[31m",
@@ -76,10 +77,23 @@ export class FileLogger implements LogDriverContract {
         return `${this.name.toLowerCase()}-${today()}.log`;
     }
 
+    protected getFileName(time: string): string {
+        return `${this.name.toLowerCase()}-${time}.log`;
+
+    }
+
     protected init(): void {
-        if (!fs.existsSync(this.folder)){
+        if (!fs.existsSync(this.folder)) {
             fs.mkdirSync(this.folder, { recursive: true });
         }
+
+        fs.readdirSync(this.folder)
+            .map(file => file.replace(`${this.name}-`, "").replace(".log", ""))
+            .filter(file => file <= moment().subtract(getEnv("APP_LOG_MAX_DAYS", "10"), "days").format(DATE_FORMAT))
+            .forEach(file => {
+                fs.unlinkSync(`${this.folder}/${this.getFileName(file)}`);
+            })
+        ;
     }
 
     public clear(): void {
@@ -160,11 +174,13 @@ export class DatabaseLogger implements LogDriverContract {
         return;
     }
 }
- type LoggerMessage = {
+
+type LoggerMessage = {
     date: string;
     level: LOG_LEVEL;
     message: string;
 }
+
 export class Logger {
     public static instances: {driver: LogDriverContract; can: boolean}[] = [];
 

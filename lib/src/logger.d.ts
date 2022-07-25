@@ -26,6 +26,7 @@ export declare class FileLogger implements LogDriverContract {
     constructor(folder: string, name: string);
     log(msg: string, level: LOG_LEVEL_NAME, date: string): Promise<void>;
     protected get fileName(): string;
+    protected getFileName(time: string): string;
     protected init(): void;
     clear(): void;
 }
