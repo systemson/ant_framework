@@ -87,13 +87,18 @@ export class FileLogger implements LogDriverContract {
             fs.mkdirSync(this.folder, { recursive: true });
         }
 
-        fs.readdirSync(this.folder)
-            .map(file => file.replace(`${this.name}-`, "").replace(".log", ""))
-            .filter(file => file <= moment().subtract(getEnv("APP_LOG_MAX_DAYS", "10"), "days").format(DATE_FORMAT))
-            .forEach(file => {
-                fs.unlinkSync(`${this.folder}/${this.getFileName(file)}`);
-            })
-        ;
+        const maxDays = getEnv("APP_LOG_MAX_DAYS", "false");
+
+        if (maxDays != "false") {
+            fs.readdirSync(this.folder)
+                .map(file => file.replace(`${this.name}-`, "").replace(".log", ""))
+                .filter(file => file <= moment().subtract(parseInt(getEnv("APP_LOG_MAX_DAYS", "10")), "days").format(DATE_FORMAT))
+                .forEach(file => {
+                    fs.unlinkSync(`${this.folder}/${this.getFileName(file)}`);
+                })
+            ;
+
+        }
     }
 
     public clear(): void {
