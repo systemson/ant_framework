@@ -131,7 +131,7 @@ export class RedisChacheDriver implements CacheDriverContract {
     set(key: string, value: unknown, ttl?: number): Promise<void> {
         this.initRedis();
         return new Promise((resolve, reject) => {
-            this.client.set(this.getRealKey(key), JSON.stringify(value), "px", ttl?.toString()).then(() => resolve(), reject);
+            this.client.set(this.getRealKey(key), JSON.stringify(value), "PX", ttl || 0).then(() => resolve(), reject);
         });
     }
 
