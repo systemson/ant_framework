@@ -89,7 +89,12 @@ export class App {
         return new Promise((resolve) => {
             Logger.info("Gracefully shutting down the application.");
 
-            RouterFacade.getInstance().close();
+            const server = RouterFacade.getInstance();
+
+            if (server) {
+                server.close();
+            }
+
             resolve();
 
             /*

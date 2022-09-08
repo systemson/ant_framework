@@ -110,7 +110,7 @@ export function sleep(ms: number): Promise<void> {
 }
 
 export function dummyCallback(...any: unknown[]): void {
-    //
+    any;
 }
 export function dummyPromiseCallback(...any: unknown[]): Promise<any> {
     return new Promise(resolve => resolve(any));
