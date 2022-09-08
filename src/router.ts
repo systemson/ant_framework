@@ -1,5 +1,6 @@
-import { Express, Request as ExpressRequest, Response as ExpressResponse, RequestHandler } from "express";
-import { dummyCallback, dummyPromiseCallback, getEnv } from "./helpers";
+import { Request as ExpressRequest, Response as ExpressResponse, RequestHandler } from "express";
+import { Server } from "http";
+import { dummyCallback, getEnv } from "./helpers";
 import { ServiceContract } from "./service_provider";
 
 export type RouterConfig = {
@@ -242,15 +243,15 @@ export abstract class BaseRoute implements RouteContract {
 }
 
 export class RouterFacade {
-    protected static instance: Express;
+    protected static instance: Server;
 
-    public static setInstance(router: Express): RouterFacade {
+    public static setInstance(router: Server): RouterFacade {
         this.instance = router;
 
         return RouterFacade;
     }
 
-    public static getInstance(): Express {
+    public static getInstance(): Server {
         return this.instance;
     }
 }

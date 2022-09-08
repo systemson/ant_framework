@@ -3,6 +3,7 @@ import { getEnv, Lang, logCatchedException, NODE_ENV } from "./helpers";
 import { ServiceProviderContract } from "./service_provider";
 import { BoostrapInterface } from "./bootstrap";
 import os from "os";
+import { RouterFacade } from "./router";
 
 export class App {
     public isRunning = false;
@@ -87,7 +88,10 @@ export class App {
     public shutDown(): Promise<void> {
         return new Promise((resolve) => {
             Logger.info("Gracefully shutting down the application.");
+
+            RouterFacade.getInstance().close();
             resolve();
+
             /*
             if (this.isRunning) {
                 QueueEngineFacade.stop().then(resolve);

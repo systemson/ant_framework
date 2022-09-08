@@ -46,6 +46,9 @@ if (NODE_ENV && fs.existsSync(`.env.${NODE_ENV}`)) {
 export function getEnv(key: string, fallback?: string): string {
     return process.env[key] || fallback || "";
 }
+export function setEnv(key: string, value: string): void {
+    process.env[key] = value;
+}
 export function logCatchedException(error?: {message?: string; stack?: string;}): void {
     logCatchedError(error);
     Logger.fatal("An unrecoverable error has occurred. Shutting down application.");

@@ -12,7 +12,7 @@
   "scripts": {
     "build": "tsc --project ./",
     "lint": "npx eslint ./index.ts ./src/**/*",
-    "lint-fix": "npx eslint ./index.ts ./src/**/* --fix",
+    "lint:fix": "npx eslint ./index.ts ./src/**/* --fix",
     "prepare": "npm run build"
   },
   "author": "Deivi Peña",

@@ -1,4 +1,6 @@
-import { Express, Request as ExpressRequest, Response as ExpressResponse, RequestHandler } from "express";
+/// <reference types="node" />
+import { Request as ExpressRequest, Response as ExpressResponse, RequestHandler } from "express";
+import { Server } from "http";
 import { ServiceContract } from "./service_provider";
 export declare type RouterConfig = {
     scheme?: string;
@@ -101,8 +103,8 @@ export declare abstract class BaseRoute implements RouteContract {
     onDestroyed(): void;
 }
 export declare class RouterFacade {
-    protected static instance: Express;
-    static setInstance(router: Express): RouterFacade;
-    static getInstance(): Express;
+    protected static instance: Server;
+    static setInstance(router: Server): RouterFacade;
+    static getInstance(): Server;
 }
 //# sourceMappingURL=router.d.ts.map
