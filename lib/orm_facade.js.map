@@ -1,0 +1,1 @@
+{"version":3,"file":"orm_facade.js","sourceRoot":"","sources":["../src/orm_facade.ts"],"names":[],"mappings":";;;AAEA,MAAa,SAAS;IAGX,MAAM,KAAK,GAAG,CAAC,GAAe;QACjC,IAAI,CAAC,WAAW,GAAG,GAAG,CAAC;IAC3B,CAAC;IAEM,MAAM,KAAK,GAAG;QACjB,OAAO,IAAI,CAAC,WAAW,CAAC;IAC5B,CAAC;IAEM,MAAM,KAAK,EAAE;QAEhB,OAAO;IACX,CAAC;CACJ;AAfD,8BAeC"}

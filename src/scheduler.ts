@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { dummyCallback, Lang, logCatchedError, TIMESTAMP_FORMAT } from "./helpers";
+import { dummyCallback, Lang, logCatchedError, now, TIMESTAMP_FORMAT } from "./helpers";
 import moment from "moment";
 import cron, { ScheduledTask } from "node-cron";
 import { Logger } from "./logger";
@@ -82,16 +82,16 @@ export class SchedulerFacade {
             scheduler.name,
             this.cron.schedule(
                 scheduler.cronExpression,
-                (now: Date) => {
+                () => {
                     if (!scheduler.isRunning) {
                         scheduler.isRunning = true;
 
                         Logger.audit(Lang.__("Running task [{{name}}] at [{{date}}]", {
                             name: `${scheduler.constructor.name}`,
-                            date: moment(now).format(TIMESTAMP_FORMAT),
+                            date: moment(now()).format(TIMESTAMP_FORMAT),
                         }));
     
-                        scheduler.handler(now).then(() => {
+                        scheduler.handler(now().toDate()).then(() => {
                             scheduler.isRunning = false;
                             scheduler.delayedTimes = 0;
                             scheduler.executedTimes++;
