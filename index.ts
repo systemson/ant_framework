@@ -3,6 +3,7 @@ export * from "./src/app";
 export * from "./src/bootstrap";
 export * from "./src/cache";
 export * from "./src/consumer";
+export * from "./src/database";
 export * from "./src/helpers";
 export * from "./src/logger";
 export * from "./src/model";

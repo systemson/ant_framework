@@ -17,6 +17,16 @@ export interface TaskContract extends ServiceContract {
     name: string;
 
     /**
+     * The task's concurrency ID.
+     */
+    id: number;
+
+    /**
+     * Amount of task running in parallel.
+     */
+    concurrency: number;
+
+    /**
      * Wether the taks is still running or not
      */
     isRunning: boolean;
@@ -31,6 +41,13 @@ export interface TaskContract extends ServiceContract {
      */
     executedTimes: number;
 
+    /**
+     * Sets the task's concurrency ID.
+     * 
+     * @param id 
+     */
+    setId(id: number): void;
+
     handler(now: Date): Promise<void>;
 
     onCompleted(): void;
@@ -44,6 +61,8 @@ export abstract class BaseTask implements TaskContract {
     public isRunning = false;
     public delayedTimes = 0;
     public executedTimes = 0;
+    public id = 0;
+    public concurrency = 1;
 
     abstract handler(now: Date): Promise<void>;
 
@@ -69,6 +88,14 @@ export abstract class BaseTask implements TaskContract {
 
     public onDestroyed(): void {
         //
+    }
+
+    public setId(id: number): void {
+        this.id = id;
+    }
+
+    public getId(): number {
+        return this.id;
     }
 }
 
