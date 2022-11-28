@@ -48,7 +48,12 @@ export interface TaskContract extends ServiceContract {
      */
     setId(id: number): void;
 
-    handler(now: Date): Promise<void>;
+    /**
+     * Gets the task's concurrency ID.
+     */
+    getId(): number;
+
+    handler(): Promise<void>;
 
     onCompleted(): void;
 
@@ -64,7 +69,7 @@ export abstract class BaseTask implements TaskContract {
     public id = 0;
     public concurrency = 1;
 
-    abstract handler(now: Date): Promise<void>;
+    abstract handler(): Promise<void>;
 
     public onCreated(): void {
         //
