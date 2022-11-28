@@ -123,7 +123,7 @@ export class SchedulerFacade {
                             date: moment(now()).format(TIMESTAMP_FORMAT),
                         }));
     
-                        scheduler.handler(now().toDate()).then(() => {
+                        scheduler.handler().then(() => {
                             scheduler.isRunning = false;
                             scheduler.delayedTimes = 0;
                             scheduler.executedTimes++;
