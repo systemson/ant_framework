@@ -118,8 +118,9 @@ export class SchedulerFacade {
                     if (!scheduler.isRunning) {
                         scheduler.isRunning = true;
 
-                        Logger.audit(Lang.__("Running task [{{name}}] at [{{date}}]", {
+                        Logger.audit(Lang.__("Running task [{{name}}(#{{id}})] at [{{date}}]", {
                             name: `${scheduler.constructor.name}`,
+                            id: scheduler.id.toString(),
                             date: moment(now()).format(TIMESTAMP_FORMAT),
                         }));
     
@@ -128,8 +129,9 @@ export class SchedulerFacade {
                             scheduler.delayedTimes = 0;
                             scheduler.executedTimes++;
 
-                            Logger.audit(Lang.__("Task [{{name}}] completed successfully at [{{date}}]", {
+                            Logger.audit(Lang.__("Task [{{name}}(#{{id}})] completed successfully at [{{date}}]", {
                                 name: `${scheduler.constructor.name}`,
+                                id: scheduler.id.toString(),
                                 date: moment().format(TIMESTAMP_FORMAT),
                             }));
 
@@ -153,8 +155,9 @@ export class SchedulerFacade {
                         scheduler.delayedTimes++;
                         scheduler.executedTimes = 0;
 
-                        Logger.audit(Lang.__("Waiting for task [{{name}}({{times}})] to complete", {
+                        Logger.audit(Lang.__("Waiting for task [{{name}}(#{{id}})]-[({{times}})] to complete", {
                             name: `${scheduler.constructor.name}`,
+                            id: scheduler.id.toString(),
                             times: scheduler.delayedTimes.toString(),
                         }));
                     }
