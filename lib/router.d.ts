@@ -91,7 +91,7 @@ export declare class ResponseContainer implements Response {
 }
 export declare function response(body?: unknown, code?: number, headers?: {}): Response;
 export declare abstract class BaseRoute implements RouteContract {
-    url: string | string[];
+    abstract url: string | string[];
     abstract method: Method;
     abstract handle(req: Request): Promise<Response> | Response;
     handler(req: Request): Promise<Response>;
