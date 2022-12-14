@@ -29,7 +29,7 @@ export type RouteOptions = {
 }
 
 export interface RouteContract extends ServiceContract {
-    url: string;
+    url: string | string[];
     method: Method;
 
     handle(req: Request):  Promise<Response> | Response;
