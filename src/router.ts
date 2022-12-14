@@ -199,7 +199,7 @@ export function response(
 }
 
 export abstract class BaseRoute implements RouteContract {
-    url = "/";
+    url: string | string[] = "/";
 
     abstract method: Method;
 
