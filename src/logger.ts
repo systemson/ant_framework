@@ -30,7 +30,7 @@ export interface LogDriverContract {
 
 export class ConsoleLogger implements LogDriverContract {
     protected LOG_COLORS = {
-        fatal: "\u001b[7m"+LOG_COLORS.danger,
+        fatal: "\u001b[7m" + LOG_COLORS.danger,
         error: LOG_COLORS.danger,
         warn: LOG_COLORS.warning,
         info: LOG_COLORS.success,
@@ -41,11 +41,27 @@ export class ConsoleLogger implements LogDriverContract {
 
     public log(msg: string, level: LOG_LEVEL_NAME, date: string): Promise<void> {
         return new Promise((resolve) => {
-            resolve(console.log(
-                this.LOG_COLORS[level],
-                `[${date}] | ${level.toUpperCase().padEnd(5, " ")} | ${msg}`,
-                "\x1b[0m"
-            ));
+            switch (level) {
+                case "error":
+                case "fatal":
+                case "warn":
+                    console.error(
+                        this.LOG_COLORS[level],
+                        `[${date}] | ${level.toUpperCase().padEnd(5, " ")} | ${msg}`,
+                        "\x1b[0m"
+                    );
+                    break;
+
+                default:
+                    console.log(
+                        this.LOG_COLORS[level],
+                        `[${date}] | ${level.toUpperCase().padEnd(5, " ")} | ${msg}`,
+                        "\x1b[0m"
+                    );
+                    break;
+            }
+
+            resolve();
         });
     }
 
@@ -55,11 +71,14 @@ export class ConsoleLogger implements LogDriverContract {
 }
 
 export class FileLogger implements LogDriverContract {
+    protected tick = 0;
+
     public constructor(
         public folder: string,
         public name: string,
+        public maxTicks: number = 10
     ) {
-        //
+        this.tick = this.maxTicks;
     }
 
     public log(msg: string, level: LOG_LEVEL_NAME, date: string): Promise<void> {
@@ -83,6 +102,13 @@ export class FileLogger implements LogDriverContract {
     }
 
     protected init(): void {
+        if (this.tick < this.maxTicks) {
+            this.tick++;
+            return;
+        } else {
+            this.tick = 0;
+        }
+
         if (!fs.existsSync(this.folder)) {
             fs.mkdirSync(this.folder, { recursive: true });
         }
@@ -96,8 +122,19 @@ export class FileLogger implements LogDriverContract {
                 .forEach(file => {
                     fs.unlinkSync(`${this.folder}/${this.getFileName(file)}`);
                 })
-            ;
+                ;
+        }
 
+        const maxSize = getEnv("APP_LOG_MAX_SIZE", "false");
+
+        if (maxSize != "false") {
+            const fileName = `${this.folder}/${this.fileName}`
+            var stats = fs.statSync(fileName);
+            const fileSize = stats.size / (1024 * 1024)
+
+            if (fileSize >= parseInt(maxSize)) {
+                fs.renameSync(fileName, `${this.folder}-${this.getFileName(moment().unix().toString())})`);
+            }
         }
     }
 
@@ -125,7 +162,7 @@ export class DatabaseLogger implements LogDriverContract {
     protected isRunning = true;
 
     public constructor(
-        protected loggerClass: new() => DatabaseLoggerProvider
+        protected loggerClass: new () => DatabaseLoggerProvider
     ) {
         this.initTime = this.unixTS();
     }
@@ -134,13 +171,13 @@ export class DatabaseLogger implements LogDriverContract {
         return new Promise((resolve, reject) => {
             if (this.isRunning) {
                 const log = new this.loggerClass();
-        
+
                 log.Message = msg;
                 log.LogLevel = level.toUpperCase();
                 log.Date = new Date(date);
-    
+
                 this.messages.push(log);
-    
+
                 this.flushLog().then(resolve, reject);
             } else {
                 resolve();
@@ -187,7 +224,7 @@ type LoggerMessage = {
 }
 
 export class Logger {
-    public static instances: {driver: LogDriverContract; can: boolean}[] = [];
+    public static instances: { driver: LogDriverContract; can: boolean }[] = [];
 
     protected static messages: LoggerMessage[] = [];
 
@@ -258,7 +295,7 @@ export class Logger {
                                 .log(message.message, message.level.name, message.date)
                                 .then(resolve)
                                 .catch(logCatchedError)
-                            ;
+                                ;
                         }
                     }
                 }
@@ -266,36 +303,36 @@ export class Logger {
         });
     }
 
-    static fatal(msg: unknown): Promise<void>  {
+    static fatal(msg: unknown): Promise<void> {
         return this.log(this.FATAL, msg);
     }
 
-    static error(msg: unknown): Promise<void>  {
+    static error(msg: unknown): Promise<void> {
         return this.log(this.ERROR, msg);
     }
 
-    static warn(msg: unknown): Promise<void>  {
+    static warn(msg: unknown): Promise<void> {
         return this.log(this.WARN, msg);
     }
 
-    static info(msg: unknown): Promise<void>  {
+    static info(msg: unknown): Promise<void> {
         return this.log(this.INFO, msg);
     }
 
-    static debug(msg: unknown): Promise<void>  {
+    static debug(msg: unknown): Promise<void> {
         return this.log(this.DEBUG, msg);
     }
 
-    static trace(msg: unknown): Promise<void>  {
+    static trace(msg: unknown): Promise<void> {
         return this.log(this.TRACE, msg);
     }
 
-    static audit(msg: unknown): Promise<void>  {
+    static audit(msg: unknown): Promise<void> {
         return this.log(this.AUDIT, msg);
     }
 
     public static pushDriver(driver: LogDriverContract, can = true): void {
-        this.instances.push({driver: driver, can: can});
+        this.instances.push({ driver: driver, can: can });
     }
 
     public static clear(): void {
