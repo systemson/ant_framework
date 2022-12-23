@@ -133,7 +133,7 @@ export class FileLogger implements LogDriverContract {
             const fileSize = stats.size / (1024 * 1024)
 
             if (fileSize >= parseInt(maxSize)) {
-                fs.renameSync(fileName, `${this.folder}-${this.getFileName(moment().unix().toString())})`);
+                fs.renameSync(fileName, `${this.folder}/${this.getFileName(moment().unix().toString())}`);
             }
         }
     }
