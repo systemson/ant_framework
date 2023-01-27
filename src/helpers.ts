@@ -31,9 +31,16 @@ Lang.configure({
  
 export { Lang };
 
-export const NODE_ENV = (<any>process).pkg ? "compiled" : process.env.NODE_ENV?.trim() ?? "development";
+export function getEnv(key: string, fallback?: string): string {
+    return process.env[key] || fallback || "";
+}
+export function setEnv(key: string, value: string): void {
+    process.env[key] = value;
+}
 
-if (NODE_ENV != "production" && !fs.existsSync(`.env.${NODE_ENV}`) && !fs.existsSync(".env")) {
+export const NODE_ENV = (<any>process).pkg ? "production" : process.env.NODE_ENV?.trim() ?? "development";
+
+if (!fs.existsSync(`.env.${NODE_ENV}`) && !fs.existsSync(".env")) {
     Logger.warn(Lang.__("No environment variables file [.env or .env.{{env}}] found.", {
         env: NODE_ENV
     }));
@@ -43,12 +50,9 @@ if (NODE_ENV && fs.existsSync(`.env.${NODE_ENV}`)) {
 } else {
     dotenvExpand(dotenv.config());
 }
-export function getEnv(key: string, fallback?: string): string {
-    return process.env[key] || fallback || "";
-}
-export function setEnv(key: string, value: string): void {
-    process.env[key] = value;
-}
+
+setEnv("NODE_ENV", NODE_ENV);
+
 export function logCatchedException(error?: {message?: string; stack?: string;}): void {
     logCatchedError(error);
     Logger.fatal("An unrecoverable error has occurred. Shutting down application.");

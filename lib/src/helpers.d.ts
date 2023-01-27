@@ -3,9 +3,9 @@ import { Redis, RedisOptions } from "ioredis";
 import { I18n } from "i18n";
 declare const Lang: I18n;
 export { Lang };
-export declare const NODE_ENV: string;
 export declare function getEnv(key: string, fallback?: string): string;
 export declare function setEnv(key: string, value: string): void;
+export declare const NODE_ENV: string;
 export declare function logCatchedException(error?: {
     message?: string;
     stack?: string;
