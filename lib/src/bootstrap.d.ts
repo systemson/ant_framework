@@ -1,4 +1,5 @@
 import { ConsumerContract } from "..";
+import { ListenerContract } from "./events";
 import { WorkerContract } from "./queue";
 import { RouteContract } from "./router";
 import { TaskContract } from "./scheduler";
@@ -9,5 +10,6 @@ export interface BoostrapInterface {
     workers: (new () => WorkerContract)[];
     consumers: (new () => ConsumerContract)[];
     tasks: (new () => TaskContract)[];
+    listeners: (new () => ListenerContract)[];
 }
 //# sourceMappingURL=bootstrap.d.ts.map
