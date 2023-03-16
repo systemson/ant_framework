@@ -1,5 +1,6 @@
 import { EventEmitter as NodeEventEmitter } from 'events';
-import { dummyCallback, logCatchedError } from './helpers';
+import { dummyCallback, Lang, logCatchedError } from './helpers';
+import { Logger } from './logger';
 import { ServiceContract } from './service_provider';
 
 export interface EventEmitterDriverContract {
@@ -59,7 +60,14 @@ export class EventEmitter {
             this.listen(event, listener);
         } else {
             try {
-                this.driver.addListener(event, (...args: any[]) => listener.handler(...args));
+                this.driver.addListener(event, (...args: any[]) => {
+                    listener.handler(...args);
+
+                    Logger.audit(Lang.__("Event [{{eventName}}] handled by [{{listener}}]", {
+                        eventName: listener.eventName,
+                        listener: listener.constructor.name,
+                    }));
+                });
             } catch (error) {
                 logCatchedError(error as any);
                 throw error;
