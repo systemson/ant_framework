@@ -59,16 +59,23 @@ export class EventEmitter {
         if (Array.isArray(event)) {
             this.listen(event, listener);
         } else {
+            const logData = {
+                eventName: listener.eventName,
+                listener: listener.constructor.name,
+            }
+
+            Logger.audit(Lang.__("Suscribed to event [{{eventName}}] by [{{listener}}].", logData));
+
             try {
                 this.driver.addListener(event, (...args: any[]) => {
                     listener.handler(...args);
 
-                    Logger.audit(Lang.__("Event [{{eventName}}] handled by [{{listener}}]", {
-                        eventName: listener.eventName,
-                        listener: listener.constructor.name,
-                    }));
+                    Logger.audit(Lang.__("Event [{{eventName}}] handled by [{{listener}}].", logData));
                 });
+
+                Logger.audit(Lang.__("Suscribed to event [{{eventName}}] by [{{listener}}].", logData));
             } catch (error) {
+                Logger.error(Lang.__("Error handling event [{{eventName}}] by [{{listener}}].", logData));
                 logCatchedError(error as any);
                 throw error;
             }
@@ -77,8 +84,16 @@ export class EventEmitter {
 
     static emit(event: string, ...args: any[]) {
         try {
+            Logger.audit(Lang.__("Emiting event [{{eventName}}].", {
+                eventName: event,
+            }));
+
             EventEmitter.driver.emit(event, ...args);
         } catch (error) {
+            Logger.audit(Lang.__("Error emiting event [{{eventName}}].", {
+                eventName: event,
+            }));
+
             logCatchedError(error as any);
             throw error;
         }
