@@ -71,5 +71,8 @@
   "include": [
     "index.ts",
     "src/**/*.ts"
+  ],
+  "exclude": [
+    "./lib/"
   ]
 }
