@@ -1,12 +1,12 @@
 import {
-    ConnectionOptions,
     DatabaseType,
     DefaultNamingStrategy,
     NamingStrategyInterface,
-    Table,
     Logger as TypeOrmLogContract,
+    DataSourceOptions,
 } from "typeorm";
 import { snakeCase } from "typeorm/util/StringUtils";
+import { Table } from "typeorm/schema-builder/table/Table";
 import {
     getEnv,
     Lang,
@@ -69,19 +69,19 @@ export class SnakeCaseNamingStrategy extends DefaultNamingStrategy implements Na
     }
 
     primaryKeyName(tableOrName: Table | string, columnNames: string[]): string {
-        return `pk_${typeof tableOrName == 'string' ? tableOrName : tableOrName.name}_${columnNames.join("_")}`;
+        return `pk_${typeof tableOrName == "string" ? tableOrName : tableOrName.name}_${columnNames.join("_")}`;
     }
 
     foreignKeyName(tableOrName: Table | string, columnNames: string[]): string {
-        return `fk_${typeof tableOrName == 'string' ? tableOrName : tableOrName.name}_${columnNames.join("_")}`;
+        return `fk_${typeof tableOrName == "string" ? tableOrName : tableOrName.name}_${columnNames.join("_")}`;
     }
 
     indexName(tableOrName: Table | string, columnNames: string[]): string {
-        return `in_${typeof tableOrName == 'string' ? tableOrName : tableOrName.name}_${columnNames.join("_")}`;
+        return `in_${typeof tableOrName == "string" ? tableOrName : tableOrName.name}_${columnNames.join("_")}`;
     }
 
     uniqueConstraintName(tableOrName: Table | string, columnNames: string[]): string {
-        return `uq_${typeof tableOrName == 'string' ? tableOrName : tableOrName.name}_${columnNames.join("_")}`;
+        return `uq_${typeof tableOrName == "string" ? tableOrName : tableOrName.name}_${columnNames.join("_")}`;
     }
 
     classTableInheritanceParentColumnName(
@@ -151,19 +151,19 @@ export class UpperCaseNamingStrategy extends DefaultNamingStrategy implements Na
     }
 
     primaryKeyName(tableOrName: Table | string, columnNames: string[]): string {
-        return (`pk_${typeof tableOrName == 'string' ? tableOrName : tableOrName.name}_${columnNames.join("_")}`).toUpperCase();
+        return (`pk_${typeof tableOrName == "string" ? tableOrName : tableOrName.name}_${columnNames.join("_")}`).toUpperCase();
     }
 
     foreignKeyName(tableOrName: Table | string, columnNames: string[]): string {
-        return (`fk_${typeof tableOrName == 'string' ? tableOrName : tableOrName.name}_${columnNames.join("_")}`).toUpperCase();
+        return (`fk_${typeof tableOrName == "string" ? tableOrName : tableOrName.name}_${columnNames.join("_")}`).toUpperCase();
     }
 
     indexName(tableOrName: Table | string, columnNames: string[]): string {
-        return (`in_${typeof tableOrName == 'string' ? tableOrName : tableOrName.name}_${columnNames.join("_")}`).toUpperCase();
+        return (`in_${typeof tableOrName == "string" ? tableOrName : tableOrName.name}_${columnNames.join("_")}`).toUpperCase();
     }
 
     uniqueConstraintName(tableOrName: Table | string, columnNames: string[]): string {
-        return (`uq_${typeof tableOrName == 'string' ? tableOrName : tableOrName.name}_${columnNames.join("_")}`).toUpperCase();
+        return (`uq_${typeof tableOrName == "string" ? tableOrName : tableOrName.name}_${columnNames.join("_")}`).toUpperCase();
     }
 
     classTableInheritanceParentColumnName(
@@ -216,56 +216,56 @@ export class CustomLogger implements TypeOrmLogContract {
 // eslint-disable-next-line no-undef
 export function getConnectionConfig(
     type: Exclude<DatabaseType, "aurora-data-api" | "aurora-data-api-pg" | "expo" | "capacitor">,
-    extra?: Partial<ConnectionOptions>
-): Exclude<ConnectionOptions, "CapacitorConnectionOptions"> {
-    let config: Exclude<ConnectionOptions, "CapacitorConnectionOptions">;
+    extra?: Partial<DataSourceOptions>
+): Exclude<DataSourceOptions, "CapacitorDataSourceOptions"> {
+    let config: Exclude<DataSourceOptions, "CapacitorDataSourceOptions">;
 
     switch (type) {
-        case "oracle":
-            config = {
-                type: type,
-                url: getEnv("DB_URL"),
-                host: getEnv("DB_HOST", "localhost"),
-                port: parseInt(getEnv("DB_PORT", "5432")),
-                username: getEnv("DB_USERNAME", "postgres"),
-                password: getEnv("DB_PASSWORD", "postgres"),
-                sid: getEnv("DB_DATABASE"),
-                schema: getEnv("DB_SCHEMA", ""),
-                entityPrefix: getEnv("BD_PREFIX"),
-            }
-            break;
+    case "oracle":
+        config  = {
+            type: type,
+            url: getEnv("DB_URL"),
+            host: getEnv("DB_HOST", "localhost"),
+            port: parseInt(getEnv("DB_PORT", "5432")),
+            username: getEnv("DB_USERNAME", "postgres"),
+            password: getEnv("DB_PASSWORD", "postgres"),
+            sid: getEnv("DB_DATABASE"),
+            schema: getEnv("DB_SCHEMA", ""),
+            entityPrefix: getEnv("BD_PREFIX"),
+        } as Extract<DataSourceOptions, "OracleConnectionOptions">;
+        break;
 
-        case "postgres":
-        case "mysql":
-        case "mariadb":
-        case "cockroachdb":
-            config = {
-                type: type,
-                url: getEnv("DB_URL"),
-                host: getEnv("DB_HOST", "localhost"),
-                port: parseInt(getEnv("DB_PORT", "5432")),
-                username: getEnv("DB_USERNAME", "postgres"),
-                password: getEnv("DB_PASSWORD", "postgres"),
-                database: getEnv("DB_DATABASE"),
-                schema: getEnv("DB_SCHEMA", ""),
-                entityPrefix: getEnv("BD_PREFIX"),
-            }
-            break;
+    case "postgres":
+    case "mysql":
+    case "mariadb":
+    case "cockroachdb":
+        config = {
+            type: type,
+            url: getEnv("DB_URL"),
+            host: getEnv("DB_HOST", "localhost"),
+            port: parseInt(getEnv("DB_PORT", "5432")),
+            username: getEnv("DB_USERNAME", "postgres"),
+            password: getEnv("DB_PASSWORD", "postgres"),
+            database: getEnv("DB_DATABASE"),
+            schema: getEnv("DB_SCHEMA", ""),
+            entityPrefix: getEnv("BD_PREFIX"),
+        } as Extract<DataSourceOptions, "MysqlConnectionOptions" | "PostgresConnectionOptions" | "CockroachConnectionOptions">;
+        break;
 
-        case "sqlite":
-        case "better-sqlite3":
-            config = {
-                type: "sqlite",
-                database: getEnv("DB_DATABASE"),
-                entityPrefix: getEnv("BD_PREFIX"),
-            }
-            break;
+    case "sqlite":
+    case "better-sqlite3":
+        config = {
+            type: "sqlite",
+            database: getEnv("DB_DATABASE"),
+            entityPrefix: getEnv("BD_PREFIX"),
+        };
+        break;
 
-        default:
-            throw new Error(Lang.__("No default connection availible for [{{type}}]", {
-                type: type
-            }));
-            break;
+    default:
+        throw new Error(Lang.__("No default connection availible for [{{type}}]", {
+            type: type
+        }));
+        break;
     }
     return Object.assign({}, config, extra);
 }

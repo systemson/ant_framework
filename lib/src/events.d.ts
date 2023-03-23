@@ -1,6 +1,6 @@
 /// <reference types="node" />
-import { EventEmitter as NodeEventEmitter } from 'events';
-import { ServiceContract } from './service_provider';
+import { EventEmitter as NodeEventEmitter } from "events";
+import { ServiceContract } from "./service_provider";
 export interface EventEmitterDriverContract {
     addListener(event: string | symbol, listener: (...args: any[]) => void): this;
     removeListener(event: string | symbol, listener: (...args: any[]) => void): this;

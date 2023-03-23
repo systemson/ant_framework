@@ -7,7 +7,6 @@ export * from "./src/database";
 export * from "./src/events";
 export * from "./src/helpers";
 export * from "./src/logger";
-export * from "./src/model";
 export * from "./src/orm_facade";
 export * from "./src/queue";
 export * from "./src/router";

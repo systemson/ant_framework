@@ -1,7 +1,7 @@
-import { EventEmitter as NodeEventEmitter } from 'events';
-import { dummyCallback, Lang, logCatchedError } from './helpers';
-import { Logger } from './logger';
-import { ServiceContract } from './service_provider';
+import { EventEmitter as NodeEventEmitter } from "events";
+import { dummyCallback, Lang, logCatchedError } from "./helpers";
+import { Logger } from "./logger";
+import { ServiceContract } from "./service_provider";
 
 export interface EventEmitterDriverContract {
     addListener(event: string | symbol, listener: (...args: any[]) => void): this;
@@ -9,8 +9,8 @@ export interface EventEmitterDriverContract {
     removeAllListeners(event?: string | symbol): this;
     setMaxListeners(n: number): this;
     getMaxListeners(): number;
-    listeners(event: string | symbol): Function[];
-    rawListeners(event: string | symbol): Function[];
+    listeners(event: string | symbol): CallableFunction[];
+    rawListeners(event: string | symbol): CallableFunction[];
     emit(event: string | symbol, ...args: any[]): boolean;
     listenerCount(event: string | symbol): number;
     eventNames(): Array<string | symbol>;
@@ -55,14 +55,14 @@ export abstract class BaseListener implements ListenerContract {
 export class EventEmitter {
     public static driver: EventEmitterDriverContract;
 
-    static listen(event: string | string[], listener: ListenerContract) {
+    static listen(event: string | string[], listener: ListenerContract): void {
         if (Array.isArray(event)) {
             this.listen(event, listener);
         } else {
             const logData = {
                 eventName: listener.eventName,
                 listener: listener.constructor.name,
-            }
+            };
 
             Logger.audit(Lang.__("Suscribed to event [{{eventName}}] by [{{listener}}].", logData));
 
@@ -82,7 +82,7 @@ export class EventEmitter {
         }
     }
 
-    static emit(event: string, ...args: any[]) {
+    static emit(event: string, ...args: any[]): void {
         try {
             Logger.audit(Lang.__("Emiting event [{{eventName}}].", {
                 eventName: event,
