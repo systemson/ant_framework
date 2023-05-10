@@ -37,6 +37,14 @@ export function getEnv(key: string, fallback?: string): string {
 export function setEnv(key: string, value: string): void {
     process.env[key] = value;
 }
+export function envIsTrue(values: string[]) {
+    for (const value of values) {
+        if (getEnv(value) === "true") {
+            return true;
+        }
+    }
+    return false;
+}
 
 export const NODE_ENV = (<any>process).pkg ? "production" : process.env.NODE_ENV?.trim() ?? "development";
 

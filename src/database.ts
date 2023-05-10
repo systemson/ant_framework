@@ -1,5 +1,5 @@
 import {
-    ConnectionOptions,
+    DataSourceOptions,
     DatabaseType,
     DefaultNamingStrategy,
     NamingStrategyInterface,
@@ -8,11 +8,18 @@ import {
 } from "typeorm";
 import { snakeCase } from "typeorm/util/StringUtils";
 import {
+    envIsTrue,
     getEnv,
     Lang,
     timestamp
 } from "./helpers";
 import { ConsoleLogger } from "./logger";
+import { MysqlConnectionOptions } from "typeorm/driver/mysql/MysqlConnectionOptions";
+import { PostgresConnectionOptions } from "typeorm/driver/postgres/PostgresConnectionOptions";
+import { CockroachConnectionOptions } from "typeorm/driver/cockroachdb/CockroachConnectionOptions";
+import { OracleConnectionOptions } from "typeorm/driver/oracle/OracleConnectionOptions";
+import { SqliteConnectionOptions } from "typeorm/driver/sqlite/SqliteConnectionOptions";
+import { BetterSqlite3ConnectionOptions } from "typeorm/driver/better-sqlite3/BetterSqlite3ConnectionOptions";
 
 export class SnakeCaseNamingStrategy extends DefaultNamingStrategy implements NamingStrategyInterface {
     tableName(className: string, customName: string): string {
@@ -216,23 +223,37 @@ export class CustomLogger implements TypeOrmLogContract {
 // eslint-disable-next-line no-undef
 export function getConnectionConfig(
     type: Exclude<DatabaseType, "aurora-data-api" | "aurora-data-api-pg" | "expo" | "capacitor">,
-    extra?: Partial<ConnectionOptions>
-): Exclude<ConnectionOptions, "CapacitorConnectionOptions"> {
-    let config: Exclude<ConnectionOptions, "CapacitorConnectionOptions">;
+    extra?: Partial<DataSourceOptions>,
+    sufix = ""
+): Exclude<DataSourceOptions, "CapacitorConnectionOptions"> {
+    let config: Exclude<DataSourceOptions, "CapacitorConnectionOptions"> = {
+        type: type,
+        url: getEnv(`DB_URL${sufix}`),
+        host: getEnv(`DB_HOST${sufix}`, "localhost"),
+        port: parseInt(getEnv(`DB_PORT${sufix}`, "5432")),
+        username: getEnv(`DB_USERNAME${sufix}`, "oracle"),
+        password: getEnv(`DB_PASSWORD${sufix}`, "oracle"),
+        sid: getEnv(`DB_DATABASE${sufix}`),
+        schema: getEnv(`DB_SCHEMA${sufix}`, ""),
+        entityPrefix: getEnv(`BD_PREFIX${sufix}`),
+        synchronize: envIsTrue(["DB_RESTART", "DB_SYNCHRONIZE"]),
+        dropSchema: envIsTrue(["DB_RESTART", "DB_DROP_SCHEMA"]),
+        migrationsRun: envIsTrue(["DB_RESTART", "DB_MIGRATE"]),
+        logging: envIsTrue(["BD_DEBUG"]),
+        ssl: envIsTrue(["DB_SSL"]),
+        extra: {
+            ssl: envIsTrue(["DB_SSL"]) ? {
+                rejectUnauthorized: false,
+            } : undefined,
+        },
+    } as any;
 
     switch (type) {
         case "oracle":
             config = {
-                type: type,
-                url: getEnv("DB_URL"),
-                host: getEnv("DB_HOST", "localhost"),
-                port: parseInt(getEnv("DB_PORT", "5432")),
-                username: getEnv("DB_USERNAME", "postgres"),
-                password: getEnv("DB_PASSWORD", "postgres"),
-                sid: getEnv("DB_DATABASE"),
-                schema: getEnv("DB_SCHEMA", ""),
-                entityPrefix: getEnv("BD_PREFIX"),
-            }
+                ...config,
+                sid: getEnv(`DB_DATABASE${sufix}`),
+            } as OracleConnectionOptions
             break;
 
         case "postgres":
@@ -240,25 +261,18 @@ export function getConnectionConfig(
         case "mariadb":
         case "cockroachdb":
             config = {
-                type: type,
-                url: getEnv("DB_URL"),
-                host: getEnv("DB_HOST", "localhost"),
-                port: parseInt(getEnv("DB_PORT", "5432")),
-                username: getEnv("DB_USERNAME", "postgres"),
-                password: getEnv("DB_PASSWORD", "postgres"),
-                database: getEnv("DB_DATABASE"),
-                schema: getEnv("DB_SCHEMA", ""),
-                entityPrefix: getEnv("BD_PREFIX"),
-            }
+                ...config,
+                database: getEnv(`DB_DATABASE${sufix}`),
+            } as MysqlConnectionOptions | PostgresConnectionOptions | CockroachConnectionOptions;
             break;
 
         case "sqlite":
         case "better-sqlite3":
             config = {
-                type: "sqlite",
+                ...config,
                 database: getEnv("DB_DATABASE"),
                 entityPrefix: getEnv("BD_PREFIX"),
-            }
+            } as SqliteConnectionOptions | BetterSqlite3ConnectionOptions;
             break;
 
         default:

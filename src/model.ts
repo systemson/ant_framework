@@ -46,7 +46,7 @@ export class Model extends BaseEntity  {
             take: perPage,
             skip: skip,
             select: (query.select as string)?.split(",") as (keyof T)[],
-            where: contidions,
+            where: contidions as any,
             order: orderBy,
             relations: (query.with as string)?.split(","),
         };

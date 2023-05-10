@@ -1,4 +1,4 @@
-import { ConnectionOptions, DatabaseType, DefaultNamingStrategy, NamingStrategyInterface, Table, Logger as TypeOrmLogContract } from "typeorm";
+import { DataSourceOptions, DatabaseType, DefaultNamingStrategy, NamingStrategyInterface, Table, Logger as TypeOrmLogContract } from "typeorm";
 import { timestamp } from "./helpers";
 import { ConsoleLogger } from "./logger";
 export declare class SnakeCaseNamingStrategy extends DefaultNamingStrategy implements NamingStrategyInterface {
@@ -41,5 +41,5 @@ export declare class CustomLogger implements TypeOrmLogContract {
     logMigration(message: string): void;
     log(level: "warn" | "info" | "log", message: string): void;
 }
-export declare function getConnectionConfig(type: Exclude<DatabaseType, "aurora-data-api" | "aurora-data-api-pg" | "expo" | "capacitor">, extra?: Partial<ConnectionOptions>): Exclude<ConnectionOptions, "CapacitorConnectionOptions">;
+export declare function getConnectionConfig(type: Exclude<DatabaseType, "aurora-data-api" | "aurora-data-api-pg" | "expo" | "capacitor">, extra?: Partial<DataSourceOptions>, sufix?: string): Exclude<DataSourceOptions, "CapacitorConnectionOptions">;
 //# sourceMappingURL=database.d.ts.map

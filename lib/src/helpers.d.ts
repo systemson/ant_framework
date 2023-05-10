@@ -5,6 +5,7 @@ declare const Lang: I18n;
 export { Lang };
 export declare function getEnv(key: string, fallback?: string): string;
 export declare function setEnv(key: string, value: string): void;
+export declare function envIsTrue(values: string[]): boolean;
 export declare const NODE_ENV: string;
 export declare function logCatchedException(error?: {
     message?: string;
