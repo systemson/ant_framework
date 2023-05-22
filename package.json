@@ -22,7 +22,7 @@
     "@types/express": "^4.17.14",
     "@types/i18n": "^0.13.5",
     "@types/ioredis": "^4.28.10",
-    "@types/node": "^14.18.33",
+    "@types/node": "^14.18.47",
     "@types/node-cron": "^3.0.6",
     "@types/redis": "^2.8.32",
     "axios": "^0.26.1",

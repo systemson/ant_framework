@@ -42,23 +42,23 @@ export class ConsoleLogger implements LogDriverContract {
     public log(msg: string, level: LOG_LEVEL_NAME, date: string): Promise<void> {
         return new Promise((resolve) => {
             switch (level) {
-                case "error":
-                case "fatal":
-                case "warn":
-                    console.error(
-                        this.LOG_COLORS[level],
-                        `[${date}] | ${level.toUpperCase().padEnd(5, " ")} | ${msg}`,
-                        "\x1b[0m"
-                    );
-                    break;
+            case "error":
+            case "fatal":
+            case "warn":
+                console.error(
+                    this.LOG_COLORS[level],
+                    `[${date}] | ${level.toUpperCase().padEnd(5, " ")} | ${msg}`,
+                    "\x1b[0m"
+                );
+                break;
 
-                default:
-                    console.log(
-                        this.LOG_COLORS[level],
-                        `[${date}] | ${level.toUpperCase().padEnd(5, " ")} | ${msg}`,
-                        "\x1b[0m"
-                    );
-                    break;
+            default:
+                console.log(
+                    this.LOG_COLORS[level],
+                    `[${date}] | ${level.toUpperCase().padEnd(5, " ")} | ${msg}`,
+                    "\x1b[0m"
+                );
+                break;
             }
 
             resolve();
@@ -122,15 +122,15 @@ export class FileLogger implements LogDriverContract {
                 .forEach(file => {
                     fs.unlinkSync(`${this.folder}/${this.getFileName(file)}`);
                 })
-                ;
+            ;
         }
 
         const maxSize = getEnv("APP_LOG_MAX_SIZE", "false");
 
         if (maxSize != "false") {
-            const fileName = `${this.folder}/${this.fileName}`
-            var stats = fs.statSync(fileName);
-            const fileSize = stats.size / (1024 * 1024)
+            const fileName = `${this.folder}/${this.fileName}`;
+            const stats = fs.statSync(fileName);
+            const fileSize = stats.size / (1024 * 1024);
 
             if (fileSize >= parseInt(maxSize)) {
                 fs.renameSync(fileName, `${this.folder}/${this.getFileName(moment().unix().toString())}`);
@@ -295,7 +295,7 @@ export class Logger {
                                 .log(message.message, message.level.name, message.date)
                                 .then(resolve)
                                 .catch(logCatchedError)
-                                ;
+                            ;
                         }
                     }
                 }

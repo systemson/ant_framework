@@ -42,6 +42,10 @@ export function envIsTrue(values: string[]) {
         if (getEnv(value) === "true") {
             return true;
         }
+        
+        if (getEnv(value) === "false") {
+            return false;
+        }
     }
     return false;
 }

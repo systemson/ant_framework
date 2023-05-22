@@ -76,19 +76,19 @@ export class SnakeCaseNamingStrategy extends DefaultNamingStrategy implements Na
     }
 
     primaryKeyName(tableOrName: Table | string, columnNames: string[]): string {
-        return `pk_${typeof tableOrName == 'string' ? tableOrName : tableOrName.name}_${columnNames.join("_")}`;
+        return `pk_${typeof tableOrName == "string" ? tableOrName : tableOrName.name}_${columnNames.join("_")}`;
     }
 
     foreignKeyName(tableOrName: Table | string, columnNames: string[]): string {
-        return `fk_${typeof tableOrName == 'string' ? tableOrName : tableOrName.name}_${columnNames.join("_")}`;
+        return `fk_${typeof tableOrName == "string" ? tableOrName : tableOrName.name}_${columnNames.join("_")}`;
     }
 
     indexName(tableOrName: Table | string, columnNames: string[]): string {
-        return `in_${typeof tableOrName == 'string' ? tableOrName : tableOrName.name}_${columnNames.join("_")}`;
+        return `in_${typeof tableOrName == "string" ? tableOrName : tableOrName.name}_${columnNames.join("_")}`;
     }
 
     uniqueConstraintName(tableOrName: Table | string, columnNames: string[]): string {
-        return `uq_${typeof tableOrName == 'string' ? tableOrName : tableOrName.name}_${columnNames.join("_")}`;
+        return `uq_${typeof tableOrName == "string" ? tableOrName : tableOrName.name}_${columnNames.join("_")}`;
     }
 
     classTableInheritanceParentColumnName(
@@ -158,19 +158,19 @@ export class UpperCaseNamingStrategy extends DefaultNamingStrategy implements Na
     }
 
     primaryKeyName(tableOrName: Table | string, columnNames: string[]): string {
-        return (`pk_${typeof tableOrName == 'string' ? tableOrName : tableOrName.name}_${columnNames.join("_")}`).toUpperCase();
+        return (`pk_${typeof tableOrName == "string" ? tableOrName : tableOrName.name}_${columnNames.join("_")}`).toUpperCase();
     }
 
     foreignKeyName(tableOrName: Table | string, columnNames: string[]): string {
-        return (`fk_${typeof tableOrName == 'string' ? tableOrName : tableOrName.name}_${columnNames.join("_")}`).toUpperCase();
+        return (`fk_${typeof tableOrName == "string" ? tableOrName : tableOrName.name}_${columnNames.join("_")}`).toUpperCase();
     }
 
     indexName(tableOrName: Table | string, columnNames: string[]): string {
-        return (`in_${typeof tableOrName == 'string' ? tableOrName : tableOrName.name}_${columnNames.join("_")}`).toUpperCase();
+        return (`in_${typeof tableOrName == "string" ? tableOrName : tableOrName.name}_${columnNames.join("_")}`).toUpperCase();
     }
 
     uniqueConstraintName(tableOrName: Table | string, columnNames: string[]): string {
-        return (`uq_${typeof tableOrName == 'string' ? tableOrName : tableOrName.name}_${columnNames.join("_")}`).toUpperCase();
+        return (`uq_${typeof tableOrName == "string" ? tableOrName : tableOrName.name}_${columnNames.join("_")}`).toUpperCase();
     }
 
     classTableInheritanceParentColumnName(
@@ -233,53 +233,52 @@ export function getConnectionConfig(
         port: parseInt(getEnv(`DB_PORT${sufix}`, "5432")),
         username: getEnv(`DB_USERNAME${sufix}`, "oracle"),
         password: getEnv(`DB_PASSWORD${sufix}`, "oracle"),
-        sid: getEnv(`DB_DATABASE${sufix}`),
         schema: getEnv(`DB_SCHEMA${sufix}`, ""),
         entityPrefix: getEnv(`BD_PREFIX${sufix}`),
-        synchronize: envIsTrue(["DB_RESTART", "DB_SYNCHRONIZE"]),
-        dropSchema: envIsTrue(["DB_RESTART", "DB_DROP_SCHEMA"]),
-        migrationsRun: envIsTrue(["DB_RESTART", "DB_MIGRATE"]),
-        logging: envIsTrue(["BD_DEBUG"]),
-        ssl: envIsTrue(["DB_SSL"]),
+        synchronize: envIsTrue([`DB_SYNCHRONIZE${sufix}`, `DB_RESTART${sufix}`]),
+        dropSchema: envIsTrue([`DB_DROP_SCHEMA${sufix}`, `DB_RESTART${sufix}`]),
+        migrationsRun: envIsTrue([`DB_MIGRATE${sufix}`, `DB_RESTART${sufix}`]),
+        logging: getEnv(`BD_DEBUG${sufix}`),
+        ssl: getEnv(`DB_SSL${sufix}`),
         extra: {
-            ssl: envIsTrue(["DB_SSL"]) ? {
+            ssl: getEnv(`DB_SSL${sufix}`) ? {
                 rejectUnauthorized: false,
             } : undefined,
         },
     } as any;
 
     switch (type) {
-        case "oracle":
-            config = {
-                ...config,
-                sid: getEnv(`DB_DATABASE${sufix}`),
-            } as OracleConnectionOptions
-            break;
+    case "oracle":
+        config = {
+            ...config,
+            sid: getEnv(`DB_DATABASE${sufix}`),
+        } as OracleConnectionOptions;
+        break;
 
-        case "postgres":
-        case "mysql":
-        case "mariadb":
-        case "cockroachdb":
-            config = {
-                ...config,
-                database: getEnv(`DB_DATABASE${sufix}`),
-            } as MysqlConnectionOptions | PostgresConnectionOptions | CockroachConnectionOptions;
-            break;
+    case "postgres":
+    case "mysql":
+    case "mariadb":
+    case "cockroachdb":
+        config = {
+            ...config,
+            database: getEnv(`DB_DATABASE${sufix}`),
+        } as MysqlConnectionOptions | PostgresConnectionOptions | CockroachConnectionOptions;
+        break;
 
-        case "sqlite":
-        case "better-sqlite3":
-            config = {
-                ...config,
-                database: getEnv("DB_DATABASE"),
-                entityPrefix: getEnv("BD_PREFIX"),
-            } as SqliteConnectionOptions | BetterSqlite3ConnectionOptions;
-            break;
+    case "sqlite":
+    case "better-sqlite3":
+        config = {
+            ...config,
+            database: getEnv(`DB_DATABASE${sufix}`),
+            entityPrefix: getEnv(`BD_PREFIX${sufix}`),
+        } as SqliteConnectionOptions | BetterSqlite3ConnectionOptions;
+        break;
 
-        default:
-            throw new Error(Lang.__("No default connection availible for [{{type}}]", {
-                type: type
-            }));
-            break;
+    default:
+        throw new Error(Lang.__("No default connection availible for [{{type}}]", {
+            type: type
+        }));
+        break;
     }
     return Object.assign({}, config, extra);
 }
