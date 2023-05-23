@@ -238,10 +238,10 @@ export function getConnectionConfig(
         synchronize: envIsTrue([`DB_SYNCHRONIZE${sufix}`, `DB_RESTART${sufix}`]),
         dropSchema: envIsTrue([`DB_DROP_SCHEMA${sufix}`, `DB_RESTART${sufix}`]),
         migrationsRun: envIsTrue([`DB_MIGRATE${sufix}`, `DB_RESTART${sufix}`]),
-        logging: getEnv(`BD_DEBUG${sufix}`),
-        ssl: getEnv(`DB_SSL${sufix}`),
+        logging: envIsTrue([`BD_DEBUG${sufix}`]),
+        ssl: envIsTrue([`DB_SSL${sufix}`]),
         extra: {
-            ssl: getEnv(`DB_SSL${sufix}`) ? {
+            ssl: envIsTrue([`DB_SSL${sufix}`]) ? {
                 rejectUnauthorized: false,
             } : undefined,
         },

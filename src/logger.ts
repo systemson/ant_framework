@@ -272,20 +272,20 @@ export class Logger {
             msg = raw;
         }
 
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
             if (parseInt(getEnv("APP_LOG_LEVEL", "3")) >= level.number) {
                 this.messages.push({
                     date: timestamp(),
                     level: level,
                     message: msg,
                 });
-                Logger.doLog().then(resolve);
+                Logger.doLog().then(resolve, reject);
             }
         });
     }
 
     protected static doLog(): Promise<void> {
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
             if (Logger.isReady) {
                 while (Logger.messages.length >= 1) {
                     const message = Logger.messages.shift() as LoggerMessage;
@@ -293,7 +293,7 @@ export class Logger {
                         if (instance.can) {
                             instance.driver
                                 .log(message.message, message.level.name, message.date)
-                                .then(resolve)
+                                .then(resolve, reject)
                                 .catch(logCatchedError)
                             ;
                         }
