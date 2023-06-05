@@ -1,4 +1,5 @@
 export interface CacheDriverContract {
+    initDriver(): Promise<void>;
     set(key: string, value: unknown, ttl?: number): Promise<void>;
     has(key: string): Promise<boolean>;
     get(key: string, def?: unknown): Promise<any>;
@@ -7,7 +8,7 @@ export interface CacheDriverContract {
 export declare class FilesystemChacheDriver implements CacheDriverContract {
     baseDir: string;
     constructor(baseDir: string);
-    private initFilesystem;
+    initDriver(): Promise<void>;
     set(key: string, value: unknown, ttl?: number): Promise<void>;
     has(key: string): Promise<boolean>;
     get(key: string, def?: unknown): Promise<any>;
@@ -28,7 +29,7 @@ export declare class RedisChacheDriver implements CacheDriverContract {
     protected config: RedisConfigContract;
     private client;
     constructor(config: RedisConfigContract);
-    private initRedis;
+    initDriver(): Promise<void>;
     set(key: string, value: unknown, ttl?: number): Promise<void>;
     has(key: string): Promise<boolean>;
     get(key: string, def?: unknown): Promise<any>;
@@ -37,7 +38,7 @@ export declare class RedisChacheDriver implements CacheDriverContract {
 }
 export declare class CacheFacade {
     protected static driver: CacheDriverContract;
-    static setDriver(driver: CacheDriverContract): void;
+    static setDriver(driver: CacheDriverContract): Promise<void>;
     static set(key: string, value: unknown, ttl?: number): Promise<void>;
     static has(key: string): Promise<boolean>;
     static get(key: string, def?: unknown): Promise<any>;

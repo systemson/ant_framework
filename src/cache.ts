@@ -7,6 +7,7 @@ import crypto from "crypto";
 import { snakeCase } from "typeorm/util/StringUtils";
 
 export interface CacheDriverContract {
+    initDriver(): Promise<void>;
     set(key: string, value: unknown, ttl?: number): Promise<void>;
     has(key: string): Promise<boolean>;
     get(key: string, def?: unknown): Promise<any>;
@@ -16,14 +17,21 @@ export interface CacheDriverContract {
 export class FilesystemChacheDriver implements CacheDriverContract {
     public constructor(
         public baseDir: string
-    ) {
-        this.initFilesystem();
-    }
+    ) {}
 
-    private initFilesystem() {
-        if (!fs.existsSync(this.baseDir)){
-            fs.mkdirSync(this.baseDir, { recursive: true });
-        }
+    public initDriver(): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+            try {
+                if (!fs.existsSync(this.baseDir)){
+                    fs.mkdirSync(this.baseDir, { recursive: true });
+                }
+            } catch (error: any) {
+                logCatchedException(error);
+                reject(error);
+            } finally {
+                resolve();
+            }
+        });
     }
 
     set(key: string, value: unknown, ttl?: number): Promise<void> {
@@ -106,37 +114,40 @@ export type RedisConfigContract = {
 export class RedisChacheDriver implements CacheDriverContract {
     private client!: Redis;
 
-    constructor(protected config: RedisConfigContract) {
-        this.initRedis();
-    }
+    constructor(protected config: RedisConfigContract) { }
 
-    private initRedis() {
-        if (this.client === undefined) {
-            if (this.config.url) {
-                this.client = new IORedis(this.config.url);
-            } else {
-                this.client = new IORedis(this.config.port, this.config.host, {
-                    password: this.config.password,
-                    username: this.config.username,
+    public initDriver(): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+            if (this.client === undefined) {
+                if (this.config.url) {
+                    this.client = new IORedis(this.config.url);
+                } else {
+                    this.client = new IORedis(this.config.port, this.config.host, {
+                        password: this.config.password,
+                        username: this.config.username,
+                    });
+                }
+    
+                this.client.on("error", (error) => {
+                    Logger.error(Lang.__("Could not connect to redis server on [{{host}}:{{port}}].", {
+                        host: this.config.host,
+                        port: this.config.port.toString(),
+                    }));
+    
+                    reject();
+                    logCatchedException(error);
+                });
+    
+                this.client.on("connect", () => {
+                    Logger.info(Lang.__("Successfully connected to redis server on [{{host}}:{{port}}].", {
+                        host: this.config.host,
+                        port: this.config.port.toString(),
+                    }));
+                    resolve();
                 });
             }
-
-            this.client.on("error", (error) => {
-                Logger.error(Lang.__("Could not connect to redis server on [{{host}}:{{port}}].", {
-                    host: this.config.host,
-                    port: this.config.port.toString(),
-                }));
-
-                logCatchedException(error);
-            });
-
-            this.client.on("connect", () => {
-                Logger.info(Lang.__("Successfully connected to redis server on [{{host}}:{{port}}].", {
-                    host: this.config.host,
-                    port: this.config.port.toString(),
-                }));
-            });
-        }
+            
+        })
     }
 
     set(key: string, value: unknown, ttl?: number): Promise<void> {
@@ -181,8 +192,9 @@ export class RedisChacheDriver implements CacheDriverContract {
 export class CacheFacade {
     protected static driver: CacheDriverContract;
 
-    public static setDriver(driver: CacheDriverContract): void {
+    public static setDriver(driver: CacheDriverContract): Promise<void> {
         this.driver = driver;
+        return this.driver.initDriver();
     }
 
     public static set(key: string, value: unknown, ttl?: number): Promise<void> {
