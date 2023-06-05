@@ -11,24 +11,24 @@ import IORedis, { Redis, RedisOptions } from "ioredis";
  */
 import { I18n } from "i18n";
 import path from "path";
- 
+
 /**
   * create a new instance
   */
 const Lang = new I18n();
- 
-if (!fs.existsSync("assets")){
+
+if (!fs.existsSync("assets")) {
     fs.mkdirSync("assets", { recursive: true });
 }
- 
+
 Lang.configure({
-    locales:  getEnv("APP_LOCALEs", "en,es").split(","),
+    locales: getEnv("APP_LOCALEs", "en,es").split(","),
     defaultLocale: getEnv("APP_DEFAULT_LOCALE", "en"),
     directory: path.join(process.cwd(), "assets", "lang"),
     autoReload: true,
     syncFiles: true,
 });
- 
+
 export { Lang };
 
 export function getEnv(key: string, fallback?: string): string {
@@ -42,7 +42,7 @@ export function envIsTrue(values: string[]) {
         if (getEnv(value) === "true") {
             return true;
         }
-        
+
         if (getEnv(value) === "false") {
             return false;
         }
@@ -58,19 +58,19 @@ if (!fs.existsSync(`.env.${NODE_ENV}`) && !fs.existsSync(".env")) {
     }));
 }
 if (NODE_ENV && fs.existsSync(`.env.${NODE_ENV}`)) {
-    dotenvExpand(dotenv.config({ path:  `.env.${NODE_ENV}`}));
+    dotenvExpand(dotenv.config({ path: `.env.${NODE_ENV}` }));
 } else {
     dotenvExpand(dotenv.config());
 }
 
 setEnv("NODE_ENV", NODE_ENV);
 
-export function logCatchedException(error?: {message?: string; stack?: string;}): void {
+export function logCatchedException(error?: { message?: string; stack?: string; }): void {
     logCatchedError(error);
     Logger.fatal("An unrecoverable error has occurred. Shutting down application.");
     process.exit(1);
 }
-export function logCatchedError(error?: {name?: string; message?: string; stack?: string;}): void {
+export function logCatchedError(error?: { name?: string; message?: string; stack?: string; }): void {
     Logger.error(error?.message || Lang.__("No message provided for this error."));
     Logger.error(error?.stack || Lang.__("No trace stack provided for this error."));
     if (NODE_ENV?.trim() === "development") {
@@ -94,10 +94,10 @@ export function logTypeORMCatchedError(error?: any): void {
     }, null, 4));
 }
 export function isTypescript(): boolean {
-    return path.extname(require?.main?.filename ?? "")  === ".ts";
+    return path.extname(require?.main?.filename ?? "") === ".ts";
 }
 
-export function now(): Moment  {
+export function now(): Moment {
     return moment();
 }
 export function dateFormated(format: TIME_FORMAT): string {
@@ -113,7 +113,7 @@ export function time(): string {
     return dateFormated(HOUR_FORMAT);
 }
 
-export type TIME_FORMAT = "YYYY-MM-DD[T]HH:mm:ss.SSS" | "YYYY-MM-DD HH:mm:ss.SSS" | "YYYY-MM-DD HH:mm:ss" |"YYYYMMDDHHmmss" | "YYYY-MM-DD" | "YYYY/MM/DD" | "HH:mm:ss" | "HH:mm:ss.SSS" | "HHmmss" | "HHmmssSSS";
+export type TIME_FORMAT = "YYYY-MM-DD[T]HH:mm:ss.SSS" | "YYYY-MM-DD HH:mm:ss.SSS" | "YYYY-MM-DD HH:mm:ss" | "YYYYMMDDHHmmss" | "YYYY-MM-DD" | "YYYY/MM/DD" | "HH:mm:ss" | "HH:mm:ss.SSS" | "HHmmss" | "HHmmssSSS";
 
 export const TIMESTAMP_FORMAT: TIME_FORMAT = "YYYY-MM-DD[T]HH:mm:ss.SSS";
 export const DATE_FORMAT: TIME_FORMAT = "YYYY-MM-DD";
@@ -139,7 +139,7 @@ process.on("SIGINT", () => {
 });
 */
 
-export function redisConfig(): RedisOptions  {
+export function redisConfig(): RedisOptions {
     return {
         host: getEnv("REDIS_HOST"),
         port: parseInt(getEnv("REDIS_PORT")),
@@ -165,4 +165,22 @@ export function redisInstance(): Redis {
     });
 
     return redis;
+}
+
+export function escapeHtml(unsafe: any): any {
+    if (typeof unsafe == 'string') {
+        return unsafe
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;")
+            ;
+    }
+
+    return unsafe;
+}
+
+export function addsscalashes(string: any): string {
+    return JSON.stringify(`${string}`);
 }

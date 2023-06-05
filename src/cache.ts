@@ -100,12 +100,15 @@ export type RedisConfigContract = {
     port: number;
     host: string;
     password: string;
+    username?: string;
 }
 
 export class RedisChacheDriver implements CacheDriverContract {
     private client!: Redis;
 
-    constructor(protected config: RedisConfigContract) { }
+    constructor(protected config: RedisConfigContract) {
+        this.initRedis();
+    }
 
     private initRedis() {
         if (this.client === undefined) {
@@ -113,7 +116,8 @@ export class RedisChacheDriver implements CacheDriverContract {
                 this.client = new IORedis(this.config.url);
             } else {
                 this.client = new IORedis(this.config.port, this.config.host, {
-                    password: this.config.password
+                    password: this.config.password,
+                    username: this.config.username,
                 });
             }
 
@@ -125,18 +129,23 @@ export class RedisChacheDriver implements CacheDriverContract {
 
                 logCatchedException(error);
             });
+
+            this.client.on("connect", () => {
+                Logger.info(Lang.__("Successfully connected to redis server on [{{host}}:{{port}}].", {
+                    host: this.config.host,
+                    port: this.config.port.toString(),
+                }));
+            });
         }
     }
 
     set(key: string, value: unknown, ttl?: number): Promise<void> {
-        this.initRedis();
         return new Promise((resolve, reject) => {
             this.client.set(this.getRealKey(key), JSON.stringify(value), "PX", ttl || 0).then(() => resolve(), reject);
         });
     }
 
     has(key: string): Promise<boolean> {
-        this.initRedis();
         return new Promise((resolve: CallableFunction, reject: any) => {
             this.client.exists(this.getRealKey(key)).then((value: number) => {
                 resolve(value > 0);
@@ -145,7 +154,6 @@ export class RedisChacheDriver implements CacheDriverContract {
     }
 
     get(key: string, def?: unknown): Promise<any> {
-        this.initRedis();
         return new Promise((resolve, reject) => {
             this.client.get(this.getRealKey(key)).then((value) => {
                 if (value) {
@@ -158,7 +166,6 @@ export class RedisChacheDriver implements CacheDriverContract {
     }
 
     unset(key: string): Promise<void> {
-        this.initRedis();
         return new Promise((resolve, reject) => {
             this.client.del(this.getRealKey(key)).then(() => {
                 resolve();
@@ -167,7 +174,7 @@ export class RedisChacheDriver implements CacheDriverContract {
     }
 
     protected getRealKey(key: string): string {
-        return `${snakeCase(getEnv("APP_REDIS_CACHE_PREFIX"))}${key}`;
+        return `${snakeCase(getEnv("REDIS_CACHE_PREFIX"))}${key}`;
     }
 }
 

@@ -32,4 +32,6 @@ export declare function dummyCallback(...any: unknown[]): void;
 export declare function dummyPromiseCallback(...any: unknown[]): Promise<any>;
 export declare function redisConfig(): RedisOptions;
 export declare function redisInstance(): Redis;
+export declare function escapeHtml(unsafe: any): any;
+export declare function addsscalashes(string: any): string;
 //# sourceMappingURL=helpers.d.ts.map

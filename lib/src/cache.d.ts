@@ -22,6 +22,7 @@ export type RedisConfigContract = {
     port: number;
     host: string;
     password: string;
+    username?: string;
 };
 export declare class RedisChacheDriver implements CacheDriverContract {
     protected config: RedisConfigContract;
