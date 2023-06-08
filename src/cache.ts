@@ -139,7 +139,7 @@ export class RedisChacheDriver implements CacheDriverContract {
                 });
     
                 this.client.on("connect", () => {
-                    Logger.info(Lang.__("Successfully connected to redis server on [{{host}}:{{port}}].", {
+                    Logger.info(Lang.__("Connected to redis server on [{{host}}:{{port}}].", {
                         host: this.config.host,
                         port: this.config.port.toString(),
                     }));

@@ -184,3 +184,24 @@ export function escapeHtml(unsafe: any): any {
 export function addsscalashes(string: any): string {
     return JSON.stringify(`${string}`);
 }
+
+
+export function cartesianString(...a: any[]): string[] {
+    return a.reduce((a, b) => a.flatMap((d: any) => b.map((e: any) => `${d}${e}`)));
+}
+
+export function pick(object: {[key: string]: any}, select: string[]) {
+    return Object.fromEntries(Object.entries(object).filter(
+        ([key]) => {
+            return select.includes(key)
+        }
+    ))
+}
+
+export function omit(object: {[key: string]: any}, select: string[]) {
+    return Object.fromEntries(Object.entries(object).filter(
+        ([key]) => {
+            return !select.includes(key)
+        }
+    ))
+}

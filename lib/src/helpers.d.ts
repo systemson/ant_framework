@@ -34,4 +34,15 @@ export declare function redisConfig(): RedisOptions;
 export declare function redisInstance(): Redis;
 export declare function escapeHtml(unsafe: any): any;
 export declare function addsscalashes(string: any): string;
+export declare function cartesianString(...a: any[]): string[];
+export declare function pick(object: {
+    [key: string]: any;
+}, select: string[]): {
+    [k: string]: any;
+};
+export declare function omit(object: {
+    [key: string]: any;
+}, select: string[]): {
+    [k: string]: any;
+};
 //# sourceMappingURL=helpers.d.ts.map
