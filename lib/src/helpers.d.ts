@@ -34,6 +34,7 @@ export declare function redisConfig(): RedisOptions;
 export declare function redisInstance(): Redis;
 export declare function escapeHtml(unsafe: any): any;
 export declare function addsscalashes(string: any): string;
+export declare function cartesian(...a: any[]): string[];
 export declare function cartesianString(...a: any[]): string[];
 export declare function pick(object: {
     [key: string]: any;
@@ -45,4 +46,6 @@ export declare function omit(object: {
 }, select: string[]): {
     [k: string]: any;
 };
+export declare function getRandomInt(min: number, max: number): number;
+export declare function capitalizeFirstLetter(str: string): string;
 //# sourceMappingURL=helpers.d.ts.map

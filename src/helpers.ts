@@ -185,6 +185,9 @@ export function addsscalashes(string: any): string {
     return JSON.stringify(`${string}`);
 }
 
+export function cartesian(...a: any[]): string[] {
+    return a.reduce((a, b) => a.flatMap((d: any) => b.map((e: any) => [d, e])));
+}
 
 export function cartesianString(...a: any[]): string[] {
     return a.reduce((a, b) => a.flatMap((d: any) => b.map((e: any) => `${d}${e}`)));
@@ -204,4 +207,14 @@ export function omit(object: {[key: string]: any}, select: string[]) {
             return !select.includes(key)
         }
     ))
+}
+
+export function getRandomInt(min: number, max: number): number {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+export function capitalizeFirstLetter(str: string): string {
+    return str.charAt(0).toUpperCase() + str.slice(1);
 }

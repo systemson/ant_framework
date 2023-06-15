@@ -260,6 +260,10 @@ export class Logger {
     public static isReady = false;
 
     public static log(level: LOG_LEVEL, raw: unknown): Promise<void> {
+        if (typeof raw == "undefined") {
+            return Promise.resolve();
+        }
+
         let msg: string;
 
         if (typeof raw != "string") {
