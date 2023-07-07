@@ -23,6 +23,7 @@ export type RouteOptions = {
 export interface RouteContract extends ServiceContract {
     url: string | string[];
     method: Method;
+    middlewares: MiddlewareContract[];
     handle(req: Request): Promise<Response> | Response;
     handler(req: Request): Promise<Response>;
     onCompleted(req: Request): void;
@@ -99,6 +100,7 @@ export declare function response(body?: unknown, code?: number, headers?: {}): R
 export declare abstract class BaseRoute implements RouteContract {
     abstract url: string | string[];
     abstract method: Method;
+    middlewares: MiddlewareContract[];
     abstract handle(req: Request): Promise<Response> | Response;
     handler(req: Request): Promise<Response>;
     onCreated(): void;
