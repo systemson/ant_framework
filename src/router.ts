@@ -1,4 +1,4 @@
-import { Request as ExpressRequest, Response as ExpressResponse, RequestHandler } from "express";
+import { Request as ExpressRequest, Response as ExpressResponse, NextFunction, RequestHandler } from "express";
 import { Server } from "http";
 import { dummyCallback, getEnv } from "./helpers";
 import { ServiceContract } from "./service_provider";
@@ -21,6 +21,16 @@ export function routerConfig(): RouterConfig {
  * The HTTP Rest methods.
  */
 export type Method = "get" | "post" | "put" | "patch" | "delete";
+
+export interface MiddlewareContract {
+    handle(req: ExpressRequest, res: ExpressResponse, next: NextFunction): void
+}
+
+export abstract class BaseMiddleware implements MiddlewareContract {
+    handle(_req: ExpressRequest, _res: ExpressResponse, next: NextFunction): void {
+        next();
+    }
+}
 
 export type RouteOptions = {
     name?: string;

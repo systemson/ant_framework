@@ -1,5 +1,5 @@
 /// <reference types="node" />
-import { Request as ExpressRequest, Response as ExpressResponse, RequestHandler } from "express";
+import { Request as ExpressRequest, Response as ExpressResponse, NextFunction, RequestHandler } from "express";
 import { Server } from "http";
 import { ServiceContract } from "./service_provider";
 export type RouterConfig = {
@@ -9,6 +9,12 @@ export type RouterConfig = {
 };
 export declare function routerConfig(): RouterConfig;
 export type Method = "get" | "post" | "put" | "patch" | "delete";
+export interface MiddlewareContract {
+    handle(req: ExpressRequest, res: ExpressResponse, next: NextFunction): void;
+}
+export declare abstract class BaseMiddleware implements MiddlewareContract {
+    handle(_req: ExpressRequest, _res: ExpressResponse, next: NextFunction): void;
+}
 export type RouteOptions = {
     name?: string;
     method: Method;
