@@ -41,7 +41,7 @@ export type RouteOptions = {
 export interface RouteContract extends ServiceContract {
     url: string | string[];
     method: Method;
-    middlewares: MiddlewareContract[];
+    middlewares: (new () => MiddlewareContract)[];
 
     handle(req: Request):  Promise<Response> | Response;
     
@@ -214,7 +214,7 @@ export abstract class BaseRoute implements RouteContract {
 
     abstract method: Method;
 
-    middlewares: MiddlewareContract[] = [];
+    middlewares: (new () => MiddlewareContract)[] = [];
 
     abstract handle(req: Request): Promise<Response> | Response;
 
