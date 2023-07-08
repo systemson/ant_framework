@@ -47,16 +47,34 @@ export interface Response {
     xml(data?: unknown, status?: number, headers?: {
         [key: string]: string;
     }): Response;
+    ok(data?: unknown, headers?: {
+        [key: string]: string;
+    }): Response;
+    created(data?: unknown, headers?: {
+        [key: string]: string;
+    }): Response;
     accepted(data?: unknown, headers?: {
         [key: string]: string;
     }): Response;
     unauthorized(data?: unknown, headers?: {
         [key: string]: string;
     }): Response;
+    forbidden(data?: unknown, headers?: {
+        [key: string]: string;
+    }): Response;
     notFound(data?: unknown, headers?: {
         [key: string]: string;
     }): Response;
+    unprocessable(data?: unknown, headers?: {
+        [key: string]: string;
+    }): Response;
     error(data?: unknown, headers?: {
+        [key: string]: string;
+    }): Response;
+    badGateway(data?: unknown, headers?: {
+        [key: string]: string;
+    }): Response;
+    unavailable(data?: unknown, headers?: {
         [key: string]: string;
     }): Response;
 }
@@ -83,16 +101,34 @@ export declare class ResponseContainer implements Response {
     xml(data?: string, status?: number, headers?: {
         [key: string]: string;
     }): Response;
+    ok(data?: unknown, headers?: {
+        [key: string]: string;
+    }): Response;
+    created(data?: unknown, headers?: {
+        [key: string]: string;
+    }): Response;
     accepted(data?: unknown, headers?: {
         [key: string]: string;
     }): Response;
     unauthorized(data?: unknown, headers?: {
         [key: string]: string;
     }): Response;
+    forbidden(data?: unknown, headers?: {
+        [key: string]: string;
+    }): Response;
     notFound(data?: unknown, headers?: {
         [key: string]: string;
     }): Response;
+    unprocessable(data?: unknown, headers?: {
+        [key: string]: string;
+    }): Response;
     error(data?: unknown, headers?: {
+        [key: string]: string;
+    }): Response;
+    badGateway(data?: unknown, headers?: {
+        [key: string]: string;
+    }): Response;
+    unavailable(data?: unknown, headers?: {
         [key: string]: string;
     }): Response;
 }

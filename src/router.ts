@@ -72,13 +72,18 @@ export interface Response {
     json(data?: unknown, status?: number, headers?: {[key: string]: string;}): Response;
     xml(data?: unknown, status?: number, headers?: {[key: string]: string;}): Response;
 
+    ok(data?: unknown, headers?: {[key: string]: string;}): Response;
+    created(data?: unknown, headers?: {[key: string]: string;}): Response;
     accepted(data?: unknown, headers?: {[key: string]: string;}): Response;
 
     unauthorized(data?: unknown, headers?: {[key: string]: string;}): Response;
-
+    forbidden(data?: unknown, headers?: {[key: string]: string;}): Response;
     notFound(data?: unknown, headers?: {[key: string]: string;}): Response;
+    unprocessable(data?: unknown, headers?: {[key: string]: string;}): Response;
 
     error(data?: unknown, headers?: {[key: string]: string;}): Response;
+    badGateway(data?: unknown, headers?: {[key: string]: string;}): Response;
+    unavailable(data?: unknown, headers?: {[key: string]: string;}): Response;
 }
 
 export type Request = ExpressRequest
@@ -164,6 +169,31 @@ export class ResponseContainer implements Response {
         ;
     }
 
+    /**
+     * HTTP 200
+     */
+    ok(data?: unknown, headers: {[key: string]: string;} = {}): Response {
+        return this
+            .setData(data)
+            .setStatus(202)
+            .setHeaders(headers)
+        ;
+    }
+
+    /**
+     * HTTP 201
+     */
+    created(data?: unknown, headers: {[key: string]: string;} = {}): Response {
+        return this
+            .setData(data)
+            .setStatus(201)
+            .setHeaders(headers)
+        ;
+    }
+
+    /**
+     * HTTP 202
+     */
     accepted(data?: unknown, headers: {[key: string]: string;} = {}): Response {
         return this
             .setData(data)
@@ -172,6 +202,9 @@ export class ResponseContainer implements Response {
         ;
     }
 
+    /**
+     * HTTP 401
+     */
     unauthorized(data?: unknown, headers: {[key: string]: string;} = {}): Response {
         return this
             .setData(data)
@@ -180,6 +213,20 @@ export class ResponseContainer implements Response {
         ;
     }
 
+    /**
+     * HTTP 403
+     */
+    forbidden(data?: unknown, headers: {[key: string]: string;} = {}): Response {
+        return this
+            .setData(data)
+            .setStatus(403)
+            .setHeaders(headers)
+        ;
+    }
+
+    /**
+     * HTTP 404
+     */
     notFound(data?: unknown, headers: {[key: string]: string;} = {}): Response {
         return this
             .setData(data)
@@ -188,10 +235,46 @@ export class ResponseContainer implements Response {
         ;
     }
 
+    /**
+     * HTTP 422
+     */
+    unprocessable(data?: unknown, headers: {[key: string]: string;} = {}): Response {
+        return this
+            .setData(data)
+            .setStatus(422)
+            .setHeaders(headers)
+        ;
+    }
+
+    /**
+     * HTTP 500
+     */
     error(data?: unknown, headers: {[key: string]: string;} = {}): Response {
         return this
             .setData(data)
             .setStatus(500)
+            .setHeaders(headers)
+        ;
+    }
+
+    /**
+     * HTTP 502
+     */
+    badGateway(data?: unknown, headers: {[key: string]: string;} = {}): Response {
+        return this
+            .setData(data)
+            .setStatus(502)
+            .setHeaders(headers)
+        ;
+    }
+
+    /**
+     * HTTP 503
+     */
+    unavailable(data?: unknown, headers: {[key: string]: string;} = {}): Response {
+        return this
+            .setData(data)
+            .setStatus(503)
             .setHeaders(headers)
         ;
     }
