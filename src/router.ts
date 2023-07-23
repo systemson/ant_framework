@@ -6,10 +6,34 @@ import { ServiceContract } from "./service_provider";
 declare global {
     namespace Express {
         interface Request {
-            local: any;
-            user: any;
-            getBearer: () => string;
+            local?: any;
+            user?: any;
+            getBearer?: () => string | undefined;
+            getBasicAuth?: () => BasicAuthToken | undefined;
         }
+    }
+}
+
+export class BasicAuthToken {
+    constructor(
+        public username: string,
+        public password: string,
+    ) {
+        //
+    }
+
+    toBase64(): string {
+        return btoa(`${this.username}:${this.password}`);
+    }
+}
+
+export class Bearer {
+    constructor(public token: string) {
+
+    }
+
+    toString(): string {
+        return this.token;
     }
 }
 

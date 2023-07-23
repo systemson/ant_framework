@@ -101,6 +101,9 @@ export class FileLogger implements LogDriverContract {
 
     }
 
+    /**
+     * @todo Make it async
+     */
     protected init(): void {
         if (this.tick < this.maxTicks) {
             this.tick++;
@@ -129,11 +132,13 @@ export class FileLogger implements LogDriverContract {
 
         if (maxSize != "false") {
             const fileName = `${this.folder}/${this.fileName}`;
-            const stats = fs.statSync(fileName);
-            const fileSize = stats.size / (1024 * 1024);
-
-            if (fileSize >= parseInt(maxSize)) {
-                fs.renameSync(fileName, `${this.folder}/${this.getFileName(moment().unix().toString())}`);
+            if (fs.existsSync(fileName)) {
+                const stats = fs.statSync(fileName);
+                const fileSize = stats.size / (1024 * 1024);
+    
+                if (fileSize >= parseInt(maxSize)) {
+                    fs.renameSync(fileName, `${this.folder}/${this.getFileName(moment().unix().toString())}`);
+                }
             }
         }
     }
