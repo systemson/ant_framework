@@ -147,7 +147,7 @@ export class RedisChacheDriver implements CacheDriverContract {
                 });
             }
             
-        })
+        });
     }
 
     set(key: string, value: unknown, ttl?: number): Promise<void> {

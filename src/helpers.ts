@@ -168,14 +168,14 @@ export function redisInstance(): Redis {
 }
 
 export function escapeHtml(unsafe: any): any {
-    if (typeof unsafe == 'string') {
+    if (typeof unsafe == "string") {
         return unsafe
             .replace(/&/g, "&amp;")
             .replace(/</g, "&lt;")
             .replace(/>/g, "&gt;")
             .replace(/"/g, "&quot;")
             .replace(/'/g, "&#039;")
-            ;
+        ;
     }
 
     return unsafe;
@@ -196,17 +196,17 @@ export function cartesianString(...a: any[]): string[] {
 export function pick(object: {[key: string]: any}, select: string[]) {
     return Object.fromEntries(Object.entries(object).filter(
         ([key]) => {
-            return select.includes(key)
+            return select.includes(key);
         }
-    ))
+    ));
 }
 
 export function omit(object: {[key: string]: any}, select: string[]) {
     return Object.fromEntries(Object.entries(object).filter(
         ([key]) => {
-            return !select.includes(key)
+            return !select.includes(key);
         }
-    ))
+    ));
 }
 
 export function getRandomInt(min: number, max: number): number {
