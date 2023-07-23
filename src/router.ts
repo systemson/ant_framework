@@ -3,6 +3,16 @@ import { Server } from "http";
 import { dummyCallback, getEnv } from "./helpers";
 import { ServiceContract } from "./service_provider";
 
+declare global {
+    namespace Express {
+        interface Request {
+            local: any;
+            user: any;
+            getBearer: () => string;
+        }
+    }
+}
+
 export type RouterConfig = {
     scheme?: string;
     host?: string;
@@ -43,8 +53,8 @@ export interface RouteContract extends ServiceContract {
     method: Method;
     middlewares: (new () => MiddlewareContract)[];
 
-    handle(req: Request):  Promise<Response> | Response;
-    
+    handle(req: Request): Promise<Response> | Response;
+
     handler(req: Request): Promise<Response>;
 
     onCompleted(req: Request): void;
@@ -61,7 +71,7 @@ export interface Response {
     setStatus(code?: number): Response;
     getStatus(): number;
 
-    setHeaders(headers?:  {
+    setHeaders(headers?: {
         [key: string]: string;
     }): Response;
     setHeader(name: string, value: string): Response;
@@ -69,24 +79,26 @@ export interface Response {
 
     send(response: ExpressResponse): ExpressResponse;
 
-    json(data?: unknown, status?: number, headers?: {[key: string]: string;}): Response;
-    xml(data?: unknown, status?: number, headers?: {[key: string]: string;}): Response;
+    json(data?: unknown, status?: number, headers?: { [key: string]: string; }): Response;
+    xml(data?: unknown, status?: number, headers?: { [key: string]: string; }): Response;
 
-    ok(data?: unknown, headers?: {[key: string]: string;}): Response;
-    created(data?: unknown, headers?: {[key: string]: string;}): Response;
-    accepted(data?: unknown, headers?: {[key: string]: string;}): Response;
+    ok(data?: unknown, headers?: { [key: string]: string; }): Response;
+    created(data?: unknown, headers?: { [key: string]: string; }): Response;
+    accepted(data?: unknown, headers?: { [key: string]: string; }): Response;
 
-    unauthorized(data?: unknown, headers?: {[key: string]: string;}): Response;
-    forbidden(data?: unknown, headers?: {[key: string]: string;}): Response;
-    notFound(data?: unknown, headers?: {[key: string]: string;}): Response;
-    unprocessable(data?: unknown, headers?: {[key: string]: string;}): Response;
+    unauthorized(data?: unknown, headers?: { [key: string]: string; }): Response;
+    forbidden(data?: unknown, headers?: { [key: string]: string; }): Response;
+    notFound(data?: unknown, headers?: { [key: string]: string; }): Response;
+    unprocessable(data?: unknown, headers?: { [key: string]: string; }): Response;
 
-    error(data?: unknown, headers?: {[key: string]: string;}): Response;
-    badGateway(data?: unknown, headers?: {[key: string]: string;}): Response;
-    unavailable(data?: unknown, headers?: {[key: string]: string;}): Response;
+    error(data?: unknown, headers?: { [key: string]: string; }): Response;
+    badGateway(data?: unknown, headers?: { [key: string]: string; }): Response;
+    unavailable(data?: unknown, headers?: { [key: string]: string; }): Response;
 }
 
-export type Request = ExpressRequest
+export interface Request extends ExpressRequest {
+
+}
 
 export class ResponseContainer implements Response {
     protected content?: any;
@@ -137,7 +149,7 @@ export class ResponseContainer implements Response {
 
     getHeaders(): {
         [key: string]: string;
-        } {
+    } {
         return this.headers;
     }
 
@@ -146,137 +158,137 @@ export class ResponseContainer implements Response {
             .status(this.getStatus())
             .header(this.getHeaders())
             .send(this.getData())
-        ;
+            ;
     }
-    
-    json(data?: unknown, status = 200, headers: {[key: string]: string;} = {}): Response {
+
+    json(data?: unknown, status = 200, headers: { [key: string]: string; } = {}): Response {
         headers["Content-Type"] = "application/json";
 
         return this
             .setHeaders(headers)
             .setData(data)
             .setStatus(status)
-        ;
+            ;
     }
 
-    xml(data?: string, status = 200, headers: {[key: string]: string;} = {}): Response {
+    xml(data?: string, status = 200, headers: { [key: string]: string; } = {}): Response {
         headers["Content-Type"] = "application/xml";
 
         return this
             .setHeaders(headers)
             .setData(data)
             .setStatus(status)
-        ;
+            ;
     }
 
     /**
      * HTTP 200
      */
-    ok(data?: unknown, headers: {[key: string]: string;} = {}): Response {
+    ok(data?: unknown, headers: { [key: string]: string; } = {}): Response {
         return this
             .setData(data)
             .setStatus(202)
             .setHeaders(headers)
-        ;
+            ;
     }
 
     /**
      * HTTP 201
      */
-    created(data?: unknown, headers: {[key: string]: string;} = {}): Response {
+    created(data?: unknown, headers: { [key: string]: string; } = {}): Response {
         return this
             .setData(data)
             .setStatus(201)
             .setHeaders(headers)
-        ;
+            ;
     }
 
     /**
      * HTTP 202
      */
-    accepted(data?: unknown, headers: {[key: string]: string;} = {}): Response {
+    accepted(data?: unknown, headers: { [key: string]: string; } = {}): Response {
         return this
             .setData(data)
             .setStatus(202)
             .setHeaders(headers)
-        ;
+            ;
     }
 
     /**
      * HTTP 401
      */
-    unauthorized(data?: unknown, headers: {[key: string]: string;} = {}): Response {
+    unauthorized(data?: unknown, headers: { [key: string]: string; } = {}): Response {
         return this
             .setData(data)
             .setStatus(401)
             .setHeaders(headers)
-        ;
+            ;
     }
 
     /**
      * HTTP 403
      */
-    forbidden(data?: unknown, headers: {[key: string]: string;} = {}): Response {
+    forbidden(data?: unknown, headers: { [key: string]: string; } = {}): Response {
         return this
             .setData(data)
             .setStatus(403)
             .setHeaders(headers)
-        ;
+            ;
     }
 
     /**
      * HTTP 404
      */
-    notFound(data?: unknown, headers: {[key: string]: string;} = {}): Response {
+    notFound(data?: unknown, headers: { [key: string]: string; } = {}): Response {
         return this
             .setData(data)
             .setStatus(404)
             .setHeaders(headers)
-        ;
+            ;
     }
 
     /**
      * HTTP 422
      */
-    unprocessable(data?: unknown, headers: {[key: string]: string;} = {}): Response {
+    unprocessable(data?: unknown, headers: { [key: string]: string; } = {}): Response {
         return this
             .setData(data)
             .setStatus(422)
             .setHeaders(headers)
-        ;
+            ;
     }
 
     /**
      * HTTP 500
      */
-    error(data?: unknown, headers: {[key: string]: string;} = {}): Response {
+    error(data?: unknown, headers: { [key: string]: string; } = {}): Response {
         return this
             .setData(data)
             .setStatus(500)
             .setHeaders(headers)
-        ;
+            ;
     }
 
     /**
      * HTTP 502
      */
-    badGateway(data?: unknown, headers: {[key: string]: string;} = {}): Response {
+    badGateway(data?: unknown, headers: { [key: string]: string; } = {}): Response {
         return this
             .setData(data)
             .setStatus(502)
             .setHeaders(headers)
-        ;
+            ;
     }
 
     /**
      * HTTP 503
      */
-    unavailable(data?: unknown, headers: {[key: string]: string;} = {}): Response {
+    unavailable(data?: unknown, headers: { [key: string]: string; } = {}): Response {
         return this
             .setData(data)
             .setStatus(503)
             .setHeaders(headers)
-        ;
+            ;
     }
 }
 
@@ -289,7 +301,23 @@ export function response(
         .setData(body)
         .setStatus(code)
         .setHeaders(headers)
-    ;
+        ;
+}
+
+export class ErrorResponse extends ResponseContainer implements Error {
+    public name: string;
+    public trace: any;
+    protected codeStatus: number = 500;
+
+    constructor(public message: string) {
+        super()
+        this.name = this.constructor.name;
+        this.trace = Error.captureStackTrace(this, this.constructor);
+    }
+
+    getData(): unknown {
+        return this.content ?? this.message;
+    }
 }
 
 export abstract class BaseRoute implements RouteContract {
@@ -302,15 +330,15 @@ export abstract class BaseRoute implements RouteContract {
     abstract handle(req: Request): Promise<Response> | Response;
 
     handler(req: Request): Promise<Response> {
-        const response = this.handle(req);
+        return new Promise((resolve, reject) => {
+            const response = this.handle(req);
 
-        if (response instanceof Promise) {
-            return response;
-        }
+            if (response instanceof Promise) {
+                return response.then(resolve, reject);
+            }
 
-        return new Promise((resolve) => {
-            resolve(response as Response);
-        });
+            resolve(response);
+        })
     }
 
     onCreated(): void {
