@@ -1,4 +1,11 @@
-import { BaseEntity, FindManyOptions } from "typeorm";
+import {
+    BaseEntity,
+    BeforeInsert,
+    BeforeUpdate,
+    FindManyOptions
+} from "typeorm";
+import { validate } from "class-validator";
+import { ErrorResponse } from "./router";
 
 export type PaginationResponse<T extends BaseEntity> = {
     data: T[];
@@ -38,5 +45,20 @@ export class Model extends BaseEntity  {
             from: opt.skip + 1,
             to: opt.skip + opt.take > total ? total : opt.skip + opt.take,
         };
+    }
+
+    @BeforeInsert()
+    @BeforeUpdate()
+    async validate() {
+        const errors = await validate(this);
+
+        if (errors.length > 0) {
+            throw new ErrorResponse(`Invalid data`).setData(errors.map(err => {
+                const error: Record<string, any> = {};
+
+                error[err.property] = err.constraints;
+                return error;
+            })).setStatus(422)
+        }
     }
 }
