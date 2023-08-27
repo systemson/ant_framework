@@ -1,84 +1,42 @@
-import { ParsedQs } from "qs";
 import { BaseEntity, FindManyOptions } from "typeorm";
-import { Request } from "./router";
 
-type PaginatedResponse<T extends BaseEntity> = {
+export type PaginationResponse<T extends BaseEntity> = {
     data: T[];
+    total: number;
+    lastPage: number;
+    currentPage: number;
+    perPage: number;
     from: number;
     to: number;
-    per_page: number;
-    last_page: number;
-    current_page: number;
-    total: number;
+}
+
+export interface PaginationOptions<Entity = any> extends Omit<FindManyOptions<Entity>, "take" | "skip"> {
+    perPage?: number;
+
+    page?: number;
 }
 
 export class Model extends BaseEntity  {
-    static async paginate<T extends BaseEntity>(this: new () => T, req: Request): Promise<PaginatedResponse<T>> {
-        const query = req.query;
+    static async paginate<T extends BaseEntity>(this: {
+        new (): T;
+    } & typeof BaseEntity, options?: PaginationOptions<T>): Promise<PaginationResponse<T>> {
+        const opt: FindManyOptions = options ?? {};
+        const perPage = options?.perPage ?? 15;
+        const page = options?.page ?? 1;
 
-        const perPage = parseInt(query?.per_page as string) || 20;
-        const page = parseInt(query?.page as string) || 1;
-        const skip = perPage * (page - 1);
-        const from = skip + 1;
-        const to = skip + perPage;
-        const conditionKeys = Object.keys(query).filter(key => (this as any).getColumns().includes(key));
+        opt.skip = Math.ceil((page * perPage) - perPage);
+        opt.take = perPage;
 
-        const contidions: ParsedQs = {};
-
-        for (const key of conditionKeys) {
-            contidions[key] = query[key];
-        }
-
-        let orderBy = undefined;
-
-        if (query.order_by) {
-            const orderByArray = (query.order_by as string).split(",").map(order => {
-                const result = order.split(":");
-                const ret: any = {};
-                ret[(result[0] as string)] = result[1] || "ASC";
-                return ret;
-            });
-
-            orderBy = Object.assign({}, ...orderByArray);
-        }
-
-        const options: FindManyOptions<T> = {
-            take: perPage,
-            skip: skip,
-            select: (query.select as string)?.split(",") as (keyof T)[],
-            where: contidions as any,
-            order: orderBy,
-            relations: (query.with as string)?.split(","),
-        };
-        
-        const data = await (this as any)
-            .getRepository()
-            .findAndCount(options);
-
-        const total = data[1];
+        const [data, total] = await this.findAndCount(opt);
 
         return {
-            data: data[0] as T[],
-            from: from,
-            to: to > total ? total : to,
-            per_page: perPage,
-            total: total,
-            current_page: page,
-            last_page: Math.ceil(data[1] / perPage),
+            data,
+            total,
+            lastPage: Math.ceil(total / opt.take),
+            currentPage: page,
+            perPage: perPage,
+            from: opt.skip + 1,
+            to: opt.skip + opt.take > total ? total : opt.skip + opt.take,
         };
-    }
-
-    protected static getColumns(): string[] {
-        return this.getRepository().metadata.columns.map(col => col.propertyName);
-    }
-
-    protected static getModifiers(): string[] {
-        return [
-            "_not",
-            "_like",
-            "_gte",
-            "_lte",
-            "_null",
-        ];
     }
 }
