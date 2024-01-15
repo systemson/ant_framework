@@ -1,9 +1,39 @@
-import { Model, PaginationOptions, PaginationResponse } from "./model";
-import { In, Like, FindOperator, FindOneOptions, MoreThan, LessThan } from "typeorm";
-import { RouteContract, BaseRoute, Method, response, Request, Response } from "./router";
+import {
+    In,
+    Like,
+    FindOperator,
+    FindOneOptions,
+    MoreThan,
+    LessThan
+} from "typeorm";
+import {
+    Model,
+    PaginationResponse,
+    PaginationOptions,
+} from "./model";
+import {
+    BaseRoute,
+    Method,
+    MiddlewareContract,
+    Request,
+    Response,
+    response,
+    RouteContract,
+} from "./router";
+
+type Action = "index" | "create" | "read" | "update" | "delete";
+
+export type CrudOptions = {
+    only?: Action[],
+    exclude?: Action[],
+    middlewares?: MiddlewareContract[];
+}
 
 export class Controller {
-    static index(modelClass: typeof Model): new () => RouteContract {
+    static index(
+        modelClass: typeof Model,
+        middlewares: (new () => MiddlewareContract)[] = [],
+    ): new () => RouteContract {
         const callback = (req: Request) => this.getMany(modelClass, req);
 
         return class extends BaseRoute {
@@ -11,13 +41,18 @@ export class Controller {
 
             method: Method = "get";
 
+            middlewares: (new () => MiddlewareContract)[] = middlewares;
+
             async handle(req: Request): Promise<Response> {
                 return response(await callback(req));
             }
         };
     }
 
-    static create(modelClass: typeof Model): new () => RouteContract {
+    static create(
+        modelClass: typeof Model,
+        middlewares: (new () => MiddlewareContract)[] = [],
+    ): new () => RouteContract {
         const callback = (req: Request) => this.fill(new modelClass(), req).save();
 
         return class extends BaseRoute {
@@ -25,13 +60,18 @@ export class Controller {
 
             method: Method = "post";
 
+            middlewares: (new () => MiddlewareContract)[] = middlewares;
+
             async handle(req: Request): Promise<Response> {
                 return response(await callback(req), 201);
             }
         };
     }
 
-    static read(modelClass: typeof Model): new () => RouteContract {
+    static read(
+        modelClass: typeof Model,
+        middlewares: (new () => MiddlewareContract)[] = [],
+    ): new () => RouteContract {
         const callback = (id: number, req: Request) => this.getOne(id, modelClass, req);
 
         return class extends BaseRoute {
@@ -39,13 +79,17 @@ export class Controller {
 
             method: Method = "get";
 
+            middlewares: (new () => MiddlewareContract)[] = middlewares;
+
             async handle(req: Request): Promise<Response> {
                 return response(await callback(parseInt(req.params.id), req));
             }
         };
     }
 
-    static update(modelClass: typeof Model): new () => RouteContract {
+    static update(modelClass: typeof Model,
+        middlewares: (new () => MiddlewareContract)[] = [],
+    ): new () => RouteContract {
         const callback = async (id: number, req: Request) => this.fill(await modelClass.findOneOrFail({
             where: {
                 Id: id
@@ -57,19 +101,26 @@ export class Controller {
 
             method: Method = "patch";
 
+            middlewares: (new () => MiddlewareContract)[] = middlewares;
+
             async handle(req: Request): Promise<Response> {
                 return response(await callback(parseInt(req.params.id), req));
             }
         };
     }
 
-    static delete(modelClass: typeof Model): new () => RouteContract {
+    static delete(
+        modelClass: typeof Model,
+        middlewares: (new () => MiddlewareContract)[] = [],
+    ): new () => RouteContract {
         const callback = (id: number) => modelClass.delete(id);
 
         return class extends BaseRoute {
             url = `/api/v1/${modelClass.getRepository().metadata.tableNameWithoutPrefix}/:id`;
 
             method: Method = "delete";
+
+            middlewares: (new () => MiddlewareContract)[] = middlewares;
 
             async handle(req: Request): Promise<Response> {
                 const result = await callback(parseInt(req.params.id));
@@ -90,14 +141,34 @@ export class Controller {
         };
     }
 
-    static crud(modelClass: typeof Model): (new () => RouteContract)[] {
-        return [
-            this.index(modelClass),
-            this.create(modelClass),
-            this.read(modelClass),
-            this.update(modelClass),
-            this.delete(modelClass),
-        ];
+    static crud(modelClass: typeof Model, options?: CrudOptions): (new () => RouteContract)[] {
+        const actions: Action[] = [
+            "index",
+            "create",
+            "read",
+            "update",
+            "delete",
+        ]
+
+        const filtered = actions.filter(item => {
+            if (options?.only) {
+                return options.only.includes(item);
+            }
+
+            if (options?.exclude) {
+                return !options.exclude.includes(item)
+            }
+
+            return true;
+        })
+
+        const routes: (new () => RouteContract)[] = [];
+
+        for (const action of filtered) {
+            routes.push(this[action](modelClass))
+        }
+
+        return routes;
     }
 
     protected static fill(model: Model, req: Request): Model {
