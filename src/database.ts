@@ -234,11 +234,11 @@ export function getConnectionConfig(
         username: getEnv(`DB_USERNAME${sufix}`, "oracle"),
         password: getEnv(`DB_PASSWORD${sufix}`, "oracle"),
         schema: getEnv(`DB_SCHEMA${sufix}`, ""),
-        entityPrefix: getEnv(`BD_PREFIX${sufix}`),
+        entityPrefix: getEnv(`DB_PREFIX${sufix}`),
         synchronize: envIsTrue([`DB_SYNCHRONIZE${sufix}`, `DB_RESTART${sufix}`]),
         dropSchema: envIsTrue([`DB_DROP_SCHEMA${sufix}`, `DB_RESTART${sufix}`]),
         migrationsRun: envIsTrue([`DB_MIGRATE${sufix}`, `DB_RESTART${sufix}`]),
-        logging: envIsTrue([`BD_DEBUG${sufix}`]),
+        logging: envIsTrue([`DB_DEBUG${sufix}`]),
         ssl: envIsTrue([`DB_SSL${sufix}`]),
         extra: {
             ssl: envIsTrue([`DB_SSL${sufix}`]) ? {
@@ -270,7 +270,7 @@ export function getConnectionConfig(
         config = {
             ...config,
             database: getEnv(`DB_DATABASE${sufix}`),
-            entityPrefix: getEnv(`BD_PREFIX${sufix}`),
+            entityPrefix: getEnv(`DB_PREFIX${sufix}`),
         } as SqliteConnectionOptions | BetterSqlite3ConnectionOptions;
         break;
 
