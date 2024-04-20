@@ -314,6 +314,21 @@ export class ResponseContainer implements Response {
     }
 }
 
+export class RedirectResponseContainer extends ResponseContainer {
+    private redirectTo!: string;
+
+    redirect(to: string): Response {
+        this.redirectTo = to;
+
+        return this;
+    }
+
+    send(response: ExpressResponse<any, Record<string, any>>): ExpressResponse<any, Record<string, any>> {
+        response.status(302).redirect(this.redirectTo);
+        return response;
+    }
+}
+
 export function response(
     body?: unknown,
     code = 200,
@@ -324,6 +339,11 @@ export function response(
         .setStatus(code)
         .setHeaders(headers)
     ;
+}
+
+export function redirect(to: string): Response {
+    return new RedirectResponseContainer()
+        .redirect(to)
 }
 
 export class ErrorResponse extends ResponseContainer implements Error {

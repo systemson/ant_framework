@@ -175,7 +175,7 @@ export function escapeHtml(unsafe: any): any {
             .replace(/>/g, "&gt;")
             .replace(/"/g, "&quot;")
             .replace(/'/g, "&#039;")
-        ;
+            ;
     }
 
     return unsafe;
@@ -193,7 +193,7 @@ export function cartesianString(...a: any[]): string[] {
     return a.reduce((a, b) => a.flatMap((d: any) => b.map((e: any) => `${d}${e}`)));
 }
 
-export function pick(object: {[key: string]: any}, select: string[]) {
+export function pick(object: { [key: string]: any }, select: string[]) {
     return Object.fromEntries(Object.entries(object).filter(
         ([key]) => {
             return select.includes(key);
@@ -201,7 +201,7 @@ export function pick(object: {[key: string]: any}, select: string[]) {
     ));
 }
 
-export function omit(object: {[key: string]: any}, select: string[]) {
+export function omit(object: { [key: string]: any }, select: string[]) {
     return Object.fromEntries(Object.entries(object).filter(
         ([key]) => {
             return !select.includes(key);
@@ -217,4 +217,15 @@ export function getRandomInt(min: number, max: number): number {
 
 export function capitalizeFirstLetter(str: string): string {
     return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+export function slugify(str: string) {
+    return str
+        .normalize('NFKD') // split accented characters into their base characters and diacritical marks
+        .replace(/[\u0300-\u036f]/g, '') // remove all the accents, which happen to be all in the \u03xx UNICODE block.
+        .trim() // trim leading or trailing whitespace
+        .toLowerCase() // convert to lowercase
+        .replace(/[^a-z -]/g, '') // remove non-alphanumeric characters
+        .replace(/\s+/g, '-') // replace spaces with hyphens
+        .replace(/-+/g, '-'); // remove consecutive hyphens
 }

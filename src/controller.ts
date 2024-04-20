@@ -3,8 +3,11 @@ import {
     Like,
     FindOperator,
     FindOneOptions,
-    MoreThan,
-    LessThan
+    FindOptionsOrder,
+    MoreThanOrEqual,
+    LessThanOrEqual,
+    Between,
+    FindOptionsWhere
 } from "typeorm";
 import {
     Model,
@@ -20,6 +23,7 @@ import {
     response,
     RouteContract,
 } from "./router";
+import { CacheFacade } from "./cache";
 
 type Action = "index" | "create" | "read" | "update" | "delete";
 
@@ -29,21 +33,33 @@ export type CrudOptions = {
     middlewares?: MiddlewareContract[];
 }
 
+export type IndexOptions = {
+    url?: string;
+    middlewares?: (new () => MiddlewareContract)[];
+    request?: (req: Request) => Request,
+}
+
 export class Controller {
     static index(
         modelClass: typeof Model,
-        middlewares: (new () => MiddlewareContract)[] = [],
+        options?: IndexOptions,
     ): new () => RouteContract {
         const callback = (req: Request) => this.getMany(modelClass, req);
-
         return class extends BaseRoute {
-            url = `/api/v1/${modelClass.getRepository().metadata.tableNameWithoutPrefix}`;
+            url = options?.url ?? `/api/v1/${modelClass.getRepository().metadata.tableNameWithoutPrefix}`;
 
             method: Method = "get";
 
-            middlewares: (new () => MiddlewareContract)[] = middlewares;
+            middlewares: (new () => MiddlewareContract)[] = options?.middlewares ?? [];
 
             async handle(req: Request): Promise<Response> {
+                let result: PaginationResponse<Model>;
+                if (req.query.cache) {
+                    result = await CacheFacade.call(new URL(req.url, `http://${req.headers.host}`).toString(), callback(req), 1000 * 15 * 60);
+                } else {
+                    result = await callback(req);
+                }
+
                 return response(await callback(req));
             }
         };
@@ -51,16 +67,16 @@ export class Controller {
 
     static create(
         modelClass: typeof Model,
-        middlewares: (new () => MiddlewareContract)[] = [],
+        options?: IndexOptions,
     ): new () => RouteContract {
         const callback = (req: Request) => this.fill(new modelClass(), req).save();
 
         return class extends BaseRoute {
-            url = `/api/v1/${modelClass.getRepository().metadata.tableNameWithoutPrefix}`;
+            url = options?.url ?? `/api/v1/${modelClass.getRepository().metadata.tableNameWithoutPrefix}`;
 
             method: Method = "post";
 
-            middlewares: (new () => MiddlewareContract)[] = middlewares;
+            middlewares: (new () => MiddlewareContract)[] = options?.middlewares ?? [];
 
             async handle(req: Request): Promise<Response> {
                 return response(await callback(req), 201);
@@ -70,38 +86,56 @@ export class Controller {
 
     static read(
         modelClass: typeof Model,
-        middlewares: (new () => MiddlewareContract)[] = [],
+        options?: IndexOptions
     ): new () => RouteContract {
-        const callback = (id: number, req: Request) => this.getOne(id, modelClass, req);
+        const callback = (id: number, req: Request) => this.getOne({
+            id: id,
+            model: modelClass,
+            req: req
+        });
 
         return class extends BaseRoute {
-            url = `/api/v1/${modelClass.getRepository().metadata.tableNameWithoutPrefix}/:id`;
+            url = options?.url ?? `/api/v1/${modelClass.getRepository().metadata.tableNameWithoutPrefix}/:id`;
 
             method: Method = "get";
 
-            middlewares: (new () => MiddlewareContract)[] = middlewares;
+            middlewares: (new () => MiddlewareContract)[] = options?.middlewares ?? [];
 
             async handle(req: Request): Promise<Response> {
-                return response(await callback(parseInt(req.params.id), req));
+                let result: Model | null;
+                if (req.query.cache) {
+                    result = await CacheFacade.call(new URL(req.url, `http://${req.headers.host}`).toString(), callback(parseInt(req.params.id), req), 1000 * 15 * 60);
+                } else {
+                    result = await callback(parseInt(req.params.id), req);
+                }
+
+                if (result) {
+                    return response(result);
+                }
+
+                return response().notFound({
+                    message: "Not found",
+                });
             }
         };
     }
 
-    static update(modelClass: typeof Model,
-        middlewares: (new () => MiddlewareContract)[] = [],
+    static update(
+        modelClass: typeof Model,
+        options?: IndexOptions
     ): new () => RouteContract {
         const callback = async (id: number, req: Request) => this.fill(await modelClass.findOneOrFail({
             where: {
-                Id: id
+                id: id
             }
         } as any), req).save();
 
         return class extends BaseRoute {
-            url = `/api/v1/${modelClass.getRepository().metadata.tableNameWithoutPrefix}/:id`;
+            url = options?.url ?? `/api/v1/${modelClass.getRepository().metadata.tableNameWithoutPrefix}/:id`;
 
             method: Method = "patch";
 
-            middlewares: (new () => MiddlewareContract)[] = middlewares;
+            middlewares: (new () => MiddlewareContract)[] = options?.middlewares ?? [];
 
             async handle(req: Request): Promise<Response> {
                 return response(await callback(parseInt(req.params.id), req));
@@ -148,7 +182,7 @@ export class Controller {
             "read",
             "update",
             "delete",
-        ]
+        ];
 
         const filtered = actions.filter(item => {
             if (options?.only) {
@@ -195,34 +229,40 @@ export class Controller {
 
         options.page = page ? parseInt(page as string) : undefined;
         options.perPage = perPage ? parseInt(perPage as string) : undefined;
-        
+
         return await model.paginate(options);
     }
 
-    protected static async getOne(id: number, model: typeof Model, req: Request): Promise<Model | undefined> {
-        return await model.findOne({
-            ...this.prepareQueryOptions(model, req),
-            where: {
-                Id: id,
-            }
+    protected static async getOne(options: {
+        id: number,
+        model: typeof Model,
+        req: Request
+    }): Promise<Model | null> {
+        const queryString: Record<string, any> = options.req.query;
+        
+        queryString["id"] = options.id;
+
+        return await options.model.findOne({
+            ...this.prepareQueryOptions(options.model, options.req),
         });
     }
 
-    protected static prepareQueryOptions(model: typeof Model, req: Request): FindOneOptions {
+    static prepareQueryOptions<T extends Model>(model: typeof Model, req: Request): FindOneOptions<T> {
         const queryString: Record<string, any> = req.query;
         const metadata = model.getRepository().metadata;
         const columns = metadata.columns.map(col => col.propertyName);
-
-        const where = this.getConditions(queryString, columns);
-        const options: PaginationOptions = {};
+        const where: FindOptionsWhere<T> = this.getConditions(queryString, columns);
+        const options: PaginationOptions<T> = {};
 
         options.where = {
             ...where
         };
 
+        options.select = metadata.columns.filter(col => col.isSelect).map(col => col.propertyName) as any;
         options.order = this.getOrderBy(req.query.orderBy as string, columns);
 
         options.relations = this.getRelations(queryString, metadata.relations.map(rel => rel.propertyName));
+        options.cache = req.query.cache == "true";
 
         return options;
     }
@@ -236,6 +276,7 @@ export class Controller {
             ...this.getWhereLike(req, cols),
             ...this.getWhereGreaterThan(req, cols),
             ...this.getWhereLowerThan(req, cols),
+            ...this.getWhereBetween(req, cols),
         };
     }
 
@@ -256,7 +297,7 @@ export class Controller {
                     if (modifier) {
                         item[0] = item[0].replace(modifier, "");
                     }
-                    (item[1] as any) = operator((item[1] as string).split(","));
+                    (item[1] as any) = operator((`${item[1]}`).split(","));
                     return item;
                 })
         );
@@ -281,7 +322,7 @@ export class Controller {
         return this.getWhere(
             req,
             cols,
-            (value: any) => MoreThan(isNaN(value) ? value : parseInt(value)),
+            (value: any) => MoreThanOrEqual(isNaN(value) ? value : parseInt(value)),
             "_gt"
         );
     }
@@ -293,15 +334,33 @@ export class Controller {
         return this.getWhere(
             req,
             cols,
-            (value: any) => LessThan(isNaN(value) ? value : parseInt(value)),
+            (value: any) => LessThanOrEqual(isNaN(value) ? value : parseInt(value)),
             "_lt"
         );
     }
 
-    protected static getOrderBy(
+    protected static getWhereBetween(req: Record<string, any>, cols: string[]) {
+        
+        return this.getWhere(
+            req,
+            cols,
+            (value: any) => {
+                const valueArray = (value as string).split(",");
+
+                if (valueArray.length < 2) {
+                    return MoreThanOrEqual(isNaN(value) ? value : parseInt(value));
+                }
+
+                return Between(valueArray[0], valueArray[1])
+            },
+            "_btw"
+        );
+    }
+
+    protected static getOrderBy<T extends Model>(
         orderBy: string,
         cols: string[]
-    ): Record<string, string> | undefined {
+    ): FindOptionsOrder<T> | undefined {
         if (!orderBy) {
             return undefined;
         }
@@ -325,6 +384,6 @@ export class Controller {
         req: Record<string, any>,
         rels: string[]
     ): string[] {
-        return (req.with?.split(",") ?? new Array<string>()).filter((rel: string) => rels.includes(rel));
+        return (req.with?.split(",") ?? new Array<string>()).filter((rel: string) => rels.includes(rel.split(".")[0]));
     }
 }
