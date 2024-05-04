@@ -229,3 +229,26 @@ export function slugify(str: string) {
         .replace(/\s+/g, '-') // replace spaces with hyphens
         .replace(/-+/g, '-'); // remove consecutive hyphens
 }
+
+export function except(objeto: any, excludes: string[] | string[][]) {
+    const propiedades = Object.getOwnPropertyNames(objeto);
+    const ret: any = objeto;
+
+    for (const exclude of excludes) {
+        const array = typeof exclude == "string" ? exclude.split(".") : exclude;
+        // const array = exclude;
+        if (array.length == 1) {
+            if (propiedades.includes(exclude as string)) {
+                delete ret[exclude as string];
+            }
+        } else if (array.length > 1) {
+            const parent = array.shift() as string;
+
+            if (propiedades.includes(parent)) {
+                ret[parent] = except(objeto[parent], array);
+            }
+        }
+    }
+
+    return ret;
+}

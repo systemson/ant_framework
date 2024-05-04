@@ -171,7 +171,7 @@ export class ResponseContainer implements Response {
 
     getHeaders(): {
         [key: string]: string;
-        } {
+    } {
         return this.headers;
     }
 
@@ -180,7 +180,7 @@ export class ResponseContainer implements Response {
             .status(this.getStatus())
             .header(this.getHeaders())
             .send(this.getData())
-        ;
+            ;
     }
 
     json(data?: unknown, status = 200, headers: { [key: string]: string; } = {}): Response {
@@ -190,7 +190,7 @@ export class ResponseContainer implements Response {
             .setHeaders(headers)
             .setData(data)
             .setStatus(status)
-        ;
+            ;
     }
 
     xml(data?: string, status = 200, headers: { [key: string]: string; } = {}): Response {
@@ -200,7 +200,7 @@ export class ResponseContainer implements Response {
             .setHeaders(headers)
             .setData(data)
             .setStatus(status)
-        ;
+            ;
     }
 
     /**
@@ -211,7 +211,7 @@ export class ResponseContainer implements Response {
             .setData(data)
             .setStatus(202)
             .setHeaders(headers)
-        ;
+            ;
     }
 
     /**
@@ -222,7 +222,7 @@ export class ResponseContainer implements Response {
             .setData(data)
             .setStatus(201)
             .setHeaders(headers)
-        ;
+            ;
     }
 
     /**
@@ -233,7 +233,7 @@ export class ResponseContainer implements Response {
             .setData(data)
             .setStatus(202)
             .setHeaders(headers)
-        ;
+            ;
     }
 
     /**
@@ -244,7 +244,7 @@ export class ResponseContainer implements Response {
             .setData(data)
             .setStatus(401)
             .setHeaders(headers)
-        ;
+            ;
     }
 
     /**
@@ -255,7 +255,7 @@ export class ResponseContainer implements Response {
             .setData(data)
             .setStatus(403)
             .setHeaders(headers)
-        ;
+            ;
     }
 
     /**
@@ -266,7 +266,7 @@ export class ResponseContainer implements Response {
             .setData(data)
             .setStatus(404)
             .setHeaders(headers)
-        ;
+            ;
     }
 
     /**
@@ -277,7 +277,7 @@ export class ResponseContainer implements Response {
             .setData(data)
             .setStatus(422)
             .setHeaders(headers)
-        ;
+            ;
     }
 
     /**
@@ -288,7 +288,7 @@ export class ResponseContainer implements Response {
             .setData(data)
             .setStatus(500)
             .setHeaders(headers)
-        ;
+            ;
     }
 
     /**
@@ -299,7 +299,7 @@ export class ResponseContainer implements Response {
             .setData(data)
             .setStatus(502)
             .setHeaders(headers)
-        ;
+            ;
     }
 
     /**
@@ -310,7 +310,7 @@ export class ResponseContainer implements Response {
             .setData(data)
             .setStatus(503)
             .setHeaders(headers)
-        ;
+            ;
     }
 }
 
@@ -324,7 +324,9 @@ export class RedirectResponseContainer extends ResponseContainer {
     }
 
     send(response: ExpressResponse<any, Record<string, any>>): ExpressResponse<any, Record<string, any>> {
-        response.status(302).redirect(this.redirectTo);
+        response.status(302)
+            .header(this.getHeaders())
+            .redirect(this.redirectTo);
         return response;
     }
 }
@@ -338,7 +340,7 @@ export function response(
         .setData(body)
         .setStatus(code)
         .setHeaders(headers)
-    ;
+        ;
 }
 
 export function redirect(to: string): Response {
