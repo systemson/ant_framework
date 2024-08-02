@@ -248,7 +248,7 @@ export function getConnectionConfig(
                 password: getEnv("DB_PASSWORD", "postgres"),
                 database: getEnv("DB_DATABASE"),
                 schema: getEnv("DB_SCHEMA", ""),
-                entityPrefix: getEnv("BD_PREFIX"),
+                entityPrefix: getEnv("DB_PREFIX"),
             }
             break;
 
@@ -257,7 +257,7 @@ export function getConnectionConfig(
             config = {
                 type: "sqlite",
                 database: getEnv("DB_DATABASE"),
-                entityPrefix: getEnv("BD_PREFIX"),
+                entityPrefix: getEnv("DB_PREFIX"),
             }
             break;
 
