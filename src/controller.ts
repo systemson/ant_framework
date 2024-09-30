@@ -205,7 +205,7 @@ export class Controller {
         return routes;
     }
 
-    static fill(model: Model, req: Request): Model {
+    static fill<T extends Model>(model: T, req: Request): T {
         return Object.assign(model, this.getFillable(model.constructor as typeof Model, req));
     }
 

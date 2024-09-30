@@ -39,11 +39,11 @@ export class Model extends BaseEntity  {
         return {
             data,
             total,
-            lastPage: Math.ceil(total / opt.take),
+            lastPage: perPage == 0 ? page : Math.ceil(total / opt.take),
             currentPage: page,
             perPage: perPage,
             from: opt.skip + 1,
-            to: opt.skip + opt.take > total ? total : opt.skip + opt.take,
+            to: (opt.skip + opt.take > total ? total : opt.skip + opt.take) ?? total,
         };
     }
 
