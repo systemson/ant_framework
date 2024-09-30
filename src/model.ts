@@ -43,7 +43,7 @@ export class Model extends BaseEntity  {
             currentPage: page,
             perPage: perPage,
             from: opt.skip + 1,
-            to: (opt.skip + opt.take > total ? total : opt.skip + opt.take) ?? total,
+            to: opt.skip + opt.take > total || opt.skip + opt.take == 0 ? total : opt.skip + opt.take,
         };
     }
 
