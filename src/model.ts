@@ -23,9 +23,9 @@ export interface PaginationOptions<Entity = any> extends Omit<FindManyOptions<En
     page?: number;
 }
 
-export class Model extends BaseEntity  {
+export class Model extends BaseEntity {
     static async paginate<T extends BaseEntity>(this: {
-        new (): T;
+        new(): T;
     } & typeof BaseEntity, options?: PaginationOptions<T>): Promise<PaginationResponse<T>> {
         const opt: FindManyOptions = options ?? {};
         const perPage = options?.perPage ?? 15;
@@ -50,7 +50,7 @@ export class Model extends BaseEntity  {
     @BeforeInsert()
     @BeforeUpdate()
     async validate() {
-        const errors = await validate(this);
+        const errors = await validate(this, { forbidUnknownValues: false, skipMissingProperties: false });
 
         if (errors.length > 0) {
             throw new ErrorResponse(`Invalid data`).setData(errors.map(err => {
